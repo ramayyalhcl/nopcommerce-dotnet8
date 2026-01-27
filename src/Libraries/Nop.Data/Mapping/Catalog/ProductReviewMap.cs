@@ -1,0 +1,28 @@
+using Nop.Core.Domain.Catalog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Catalog
+{
+    public partial class ProductReviewMap : NopEntityTypeConfiguration<ProductReview>
+    {
+        public override void Configure(EntityTypeBuilder<ProductReview> builder)
+        {
+            builder.ToTable("ProductReview");
+            builder.HasKey(pr => pr.Id);
+
+            builder.HasOne(pr => pr.Product)
+                .WithMany(p => p.ProductReviews)
+                .HasForeignKey(pr => pr.ProductId);
+
+            builder.HasOne(pr => pr.Customer)
+                .WithMany()
+                .HasForeignKey(pr => pr.CustomerId);
+
+            builder.HasOne(pr => pr.Store)
+                .WithMany()
+                .HasForeignKey(pr => pr.StoreId);
+            PostInitialize();
+        }
+    }
+}

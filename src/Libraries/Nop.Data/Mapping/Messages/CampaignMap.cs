@@ -1,0 +1,20 @@
+using Nop.Core.Domain.Messages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Messages
+{
+    public partial class CampaignMap : NopEntityTypeConfiguration<Campaign>
+    {
+        public override void Configure(EntityTypeBuilder<Campaign> builder)
+        {
+            builder.ToTable("Campaign");
+            builder.HasKey(ea => ea.Id);
+
+            builder.Property(ea => ea.Name).IsRequired();
+            builder.Property(ea => ea.Subject).IsRequired();
+            builder.Property(ea => ea.Body).IsRequired();
+            PostInitialize();
+        }
+    }
+}

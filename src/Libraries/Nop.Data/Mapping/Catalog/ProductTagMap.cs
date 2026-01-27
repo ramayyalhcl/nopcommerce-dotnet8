@@ -1,0 +1,17 @@
+using Nop.Core.Domain.Catalog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Catalog
+{
+    public partial class ProductTagMap : NopEntityTypeConfiguration<ProductTag>
+    {
+        public override void Configure(EntityTypeBuilder<ProductTag> builder)
+        {
+            builder.ToTable("ProductTag");
+            builder.HasKey(pt => pt.Id);
+            builder.Property(pt => pt.Name).IsRequired().HasMaxLength(400);
+            PostInitialize();
+        }
+    }
+}

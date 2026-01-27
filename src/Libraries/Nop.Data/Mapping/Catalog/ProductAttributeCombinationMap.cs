@@ -1,0 +1,27 @@
+using Nop.Core.Domain.Catalog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Catalog
+{
+    public partial class ProductAttributeCombinationMap : NopEntityTypeConfiguration<ProductAttributeCombination>
+    {
+        public override void Configure(EntityTypeBuilder<ProductAttributeCombination> builder)
+        {
+            builder.ToTable("ProductAttributeCombination");
+            builder.HasKey(pac => pac.Id);
+
+            builder.Property(pac => pac.Sku).HasMaxLength(400);
+            builder.Property(pac => pac.ManufacturerPartNumber).HasMaxLength(400);
+            builder.Property(pac => pac.Gtin).HasMaxLength(400);
+            builder.Property(pac => pac.OverriddenPrice).HasPrecision(18, 4);
+
+            builder.HasOne(pac => pac.Product)
+                .WithMany(p => p.ProductAttributeCombinations)
+                .HasForeignKey(pac => pac.ProductId);
+            PostInitialize();
+        }
+    }
+}

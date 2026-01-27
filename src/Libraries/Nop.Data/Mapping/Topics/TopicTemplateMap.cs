@@ -1,0 +1,20 @@
+using Nop.Core.Domain.Topics;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Topics
+{
+    public partial class TopicTemplateMap : NopEntityTypeConfiguration<TopicTemplate>
+    {
+        public override void Configure(EntityTypeBuilder<TopicTemplate> builder)
+        {
+            builder.ToTable("TopicTemplate");
+            builder.HasKey(t => t.Id);
+            builder.Property(t => t.Name).IsRequired().HasMaxLength(400);
+            builder.Property(t => t.ViewPath).IsRequired().HasMaxLength(400);
+            PostInitialize();
+        }
+    }
+}

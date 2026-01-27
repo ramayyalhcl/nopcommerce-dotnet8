@@ -1,0 +1,24 @@
+using Nop.Core.Domain.Orders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Orders
+{
+    public partial class GiftCardMap : NopEntityTypeConfiguration<GiftCard>
+    {
+        public override void Configure(EntityTypeBuilder<GiftCard> builder)
+        {
+            builder.ToTable("GiftCard");
+            builder.HasKey(gc => gc.Id);
+
+            builder.Property(gc => gc.Amount).HasPrecision(18, 4);
+
+            builder.Ignore(gc => gc.GiftCardType);
+
+            builder.HasOne(gc => gc.PurchasedWithOrderItem)
+                .WithMany(orderItem => orderItem.AssociatedGiftCards)
+                .HasForeignKey(gc => gc.PurchasedWithOrderItemId);
+            PostInitialize();
+        }
+    }
+}

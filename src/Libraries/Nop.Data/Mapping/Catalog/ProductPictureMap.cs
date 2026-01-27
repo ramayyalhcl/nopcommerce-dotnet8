@@ -1,0 +1,25 @@
+using Nop.Core.Domain.Catalog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Nop.Data.Mapping.Catalog
+{
+    public partial class ProductPictureMap : NopEntityTypeConfiguration<ProductPicture>
+    {
+        public override void Configure(EntityTypeBuilder<ProductPicture> builder)
+        {
+            builder.ToTable("Product_Picture_Mapping");
+            builder.HasKey(pp => pp.Id);
+            
+            builder.HasOne(pp => pp.Picture)
+                .WithMany()
+                .HasForeignKey(pp => pp.PictureId);
+
+
+            builder.HasOne(pp => pp.Product)
+                .WithMany(p => p.ProductPictures)
+                .HasForeignKey(pp => pp.ProductId);
+            PostInitialize();
+        }
+    }
+}
