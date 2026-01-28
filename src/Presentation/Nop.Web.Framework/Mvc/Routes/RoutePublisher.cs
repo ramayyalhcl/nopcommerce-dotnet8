@@ -34,9 +34,14 @@ namespace Nop.Web.Framework.Mvc.Routes
             if (providerType == null)
                 throw new ArgumentNullException("providerType");
 
+            // PluginManager.ReferencedPlugins may be null if plugins aren't initialized yet
+            // In that case, the route provider is not a plugin, so return null
+            if (PluginManager.ReferencedPlugins == null)
+                return null;
+
             foreach (var plugin in PluginManager.ReferencedPlugins)
             {
-                if (plugin.ReferencedAssembly == null)
+                if (plugin?.ReferencedAssembly == null)
                     continue;
 
                 if (plugin.ReferencedAssembly.FullName == providerType.Assembly.FullName)
@@ -52,20 +57,37 @@ namespace Nop.Web.Framework.Mvc.Routes
         /// <param name="endpointRouteBuilder">Endpoint route builder</param>
         public virtual void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
+            System.Console.WriteLine("[LOG] RoutePublisher.RegisterRoutes: Starting route discovery...");
             var routeProviderTypes = typeFinder.FindClassesOfType<IRouteProvider>();
+            System.Console.WriteLine($"[LOG] RoutePublisher.RegisterRoutes: Found {routeProviderTypes.Count()} IRouteProvider implementations");
+            
             var routeProviders = new List<IRouteProvider>();
             foreach (var providerType in routeProviderTypes)
             {
+                System.Console.WriteLine($"[LOG] RoutePublisher.RegisterRoutes: Processing {providerType.Name}...");
                 //Ignore not installed plugins
                 var plugin = FindPlugin(providerType);
                 if (plugin != null && !plugin.Installed)
+                {
+                    System.Console.WriteLine($"[LOG] RoutePublisher.RegisterRoutes: Skipping {providerType.Name} (plugin not installed)");
                     continue;
+                }
 
                 var provider = Activator.CreateInstance(providerType) as IRouteProvider;
-                routeProviders.Add(provider);
+                if (provider != null)
+                {
+                    routeProviders.Add(provider);
+                    System.Console.WriteLine($"[LOG] RoutePublisher.RegisterRoutes: Added {providerType.Name} (Priority: {provider.Priority})");
+                }
             }
             routeProviders = routeProviders.OrderByDescending(rp => rp.Priority).ToList();
-            routeProviders.ForEach(rp => rp.RegisterRoutes(endpointRouteBuilder));
+            System.Console.WriteLine($"[LOG] RoutePublisher.RegisterRoutes: Calling RegisterRoutes on {routeProviders.Count} providers...");
+            routeProviders.ForEach(rp => 
+            {
+                System.Console.WriteLine($"[LOG] RoutePublisher.RegisterRoutes: Calling RegisterRoutes on {rp.GetType().Name}...");
+                rp.RegisterRoutes(endpointRouteBuilder);
+            });
+            System.Console.WriteLine("[LOG] RoutePublisher.RegisterRoutes: Route registration complete.");
         }
     }
 }

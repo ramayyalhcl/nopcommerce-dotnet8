@@ -17,8 +17,11 @@ namespace Nop.Data.Mapping.Customers
                 .WithMany()
                 .HasForeignKey(rph => rph.CustomerId);
 
+            // Configure one-to-one relationship: RewardPointsHistory -> Order
+            // RewardPointsHistory is the dependent side (has the foreign key)
             builder.HasOne(rph => rph.UsedWithOrder)
                 .WithOne(o => o.RedeemedRewardPointsEntry)
+                .HasForeignKey<RewardPointsHistory>("UsedWithOrderId")
                 .OnDelete(DeleteBehavior.Restrict);
             PostInitialize();
         }

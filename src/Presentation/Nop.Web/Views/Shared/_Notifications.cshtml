@@ -1,4 +1,4 @@
-﻿@{
+@{
     //success messages
     var successMessages = new List<string>();
     if (TempData[string.Format("nop.notifications.{0}", NotifyType.Success)] != null)
@@ -34,11 +34,13 @@
         warningMessages.AddRange(ViewData[string.Format("nop.notifications.{0}", NotifyType.Warning)] as IList<string>);
     }
 }
+@using Nop.Web.Extensions
+@using System.Text.Encodings.Web
 @if (successMessages.Count > 0)
 {
     <script type="text/javascript">
         $(document).ready(function () {
-            var msg = [ @Html.Raw("'" + string.Join("', '", successMessages.Select(x => HttpUtility.JavaScriptStringEncode(x)).ToList()) + "'")];
+            var msg = [ @Html.Raw("'" + string.Join("', '", successMessages.Select(x => JavaScriptEncoder.Default.Encode(x)).ToList()) + "'")];
             displayPopupNotification(msg, 'success', false);
         });
     </script>
@@ -47,7 +49,7 @@
 {
     <script type="text/javascript">
         $(document).ready(function () {
-            var msg = [ @Html.Raw("'" + string.Join("', '", errorMessages.Select(x => HttpUtility.JavaScriptStringEncode(x)).ToList()) + "'")];
+            var msg = [ @Html.Raw("'" + string.Join("', '", errorMessages.Select(x => JavaScriptEncoder.Default.Encode(x)).ToList()) + "'")];
             displayPopupNotification(msg, 'error', false);
         });
     </script>
@@ -56,7 +58,7 @@
 {
     <script type="text/javascript">
         $(document).ready(function () {
-            var msg = [ @Html.Raw("'" + string.Join("', '", warningMessages.Select(x => HttpUtility.JavaScriptStringEncode(x)).ToList()) + "'")];
+            var msg = [ @Html.Raw("'" + string.Join("', '", warningMessages.Select(x => JavaScriptEncoder.Default.Encode(x)).ToList()) + "'")];
             displayPopupNotification(msg, 'warning', false);
         });
     </script>
@@ -64,13 +66,13 @@
 
 <div class="ajax-loading-block-window" style="display: none">
 </div>
-<div id="dialog-notifications-success" title="@T("Common.Notification")" style="display:none;">
+<div id="dialog-notifications-success" title="@Html.T("Common.Notification")" style="display:none;">
 </div>
-<div id="dialog-notifications-error" title="@T("Common.Error")" style="display:none;">
+<div id="dialog-notifications-error" title="@Html.T("Common.Error")" style="display:none;">
 </div>
-<div id="dialog-notifications-warning" title="@T("Common.Warning")" style="display:none;">
+<div id="dialog-notifications-warning" title="@Html.T("Common.Warning")" style="display:none;">
 </div>
 <div id="bar-notification" class="bar-notification">
-    <span class="close" title="@T("Common.Close")">&nbsp;</span>
+    <span class="close" title="@Html.T("Common.Close")">&nbsp;</span>
 </div>
 @Html.Widget("notifications")
