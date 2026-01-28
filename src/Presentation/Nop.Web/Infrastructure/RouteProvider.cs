@@ -1,5 +1,6 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Nop.Web.Framework.Mvc.Routing;
+using Nop.Web.Framework.Mvc.Routes;
 
 namespace Nop.Web.Infrastructure
 {
@@ -7,13 +8,22 @@ namespace Nop.Web.Infrastructure
     {
         public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            // TODO: Convert all MapLocalizedRoute calls to MapControllerRoute with lang pattern
-            // See official 4.70.5 Nop.Web/Infrastructure/RouteProvider.cs for reference pattern:
-            // var lang = GetLanguageRoutePattern();
-            // endpointRouteBuilder.MapControllerRoute(name: "RouteName", 
-            //     pattern: $"{lang}/path/", 
-            //     defaults: new { controller = "ControllerName", action = "ActionName" });
-            // Stubbed for compilation - routing will be implemented when Program.cs is created
+            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Starting route registration...");
+            
+            // Register default route for Home/Index
+            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering HomePage route (pattern: '')");
+            endpointRouteBuilder.MapControllerRoute(
+                name: "HomePage",
+                pattern: "",
+                defaults: new { controller = "Home", action = "Index" });
+
+            // Register standard MVC route pattern
+            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering default route (pattern: '{controller=Home}/{action=Index}/{id?}')");
+            endpointRouteBuilder.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+            
+            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Route registration complete.");
         }
 
         public int Priority => 0;

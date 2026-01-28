@@ -1,8 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.Extensions.DependencyInjection;
 // using System.Web.Mvc.Html; - removed for .NET 8
 using Nop.Core;
 using Nop.Core.Caching;
@@ -11,9 +18,11 @@ using Nop.Services.Localization;
 using Nop.Services.Seo;
 using Nop.Services.Topics;
 using Nop.Web.Framework.UI.Paging;
+using Nop.Web.Framework.Localization;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Boards;
 using Nop.Web.Models.Common;
+using Nop.Web.Factories;
 
 namespace Nop.Web.Extensions
 {
@@ -250,6 +259,311 @@ namespace Nop.Web.Extensions
                 return topic.GetSeName();
             });
             return cachedSeName;
+        }
+
+        /// <summary>
+        /// Render widgets for a widget zone
+        /// </summary>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="html">HTML helper</param>
+        /// <param name="widgetZone">Widget zone name</param>
+        /// <returns>Widget content</returns>
+        public static IHtmlContent Widget<TModel>(this IHtmlHelper<TModel> html, string widgetZone)
+        {
+            return Widget(html, widgetZone, null);
+        }
+
+        /// <summary>
+        /// Render widgets for a widget zone with additional data
+        /// </summary>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="html">HTML helper</param>
+        /// <param name="widgetZone">Widget zone name</param>
+        /// <param name="additionalData">Additional data</param>
+        /// <returns>Widget content</returns>
+        public static IHtmlContent Widget<TModel>(this IHtmlHelper<TModel> html, string widgetZone, object additionalData)
+        {
+            if (string.IsNullOrEmpty(widgetZone))
+                return HtmlString.Empty;
+
+            try
+            {
+                var widgetModelFactory = EngineContext.Current.Resolve<IWidgetModelFactory>();
+                var model = widgetModelFactory.GetRenderWidgetModels(widgetZone, additionalData);
+
+                if (model == null || !model.Any())
+                    return HtmlString.Empty;
+
+                // Render the WidgetsByZone partial view
+                return html.Partial("WidgetsByZone", model);
+            }
+            catch (Exception)
+            {
+                // Return empty on error
+                return HtmlString.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Render a controller action as a partial view (replaces Html.Action from ASP.NET MVC)
+        /// </summary>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="html">HTML helper</param>
+        /// <param name="actionName">Action name</param>
+        /// <param name="controllerName">Controller name</param>
+        /// <returns>Action content</returns>
+        public static IHtmlContent Action<TModel>(this IHtmlHelper<TModel> html, string actionName, string controllerName)
+        {
+            return Action(html, actionName, controllerName, null);
+        }
+
+        /// <summary>
+        /// Render a controller action as a partial view with route values
+        /// Note: This is a simplified implementation that renders partial views directly.
+        /// For full functionality, consider converting to ViewComponents.
+        /// </summary>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="html">HTML helper</param>
+        /// <param name="actionName">Action name</param>
+        /// <param name="controllerName">Controller name</param>
+        /// <param name="routeValues">Route values</param>
+        /// <returns>Action content</returns>
+        public static IHtmlContent Action<TModel>(this IHtmlHelper<TModel> html, string actionName, string controllerName, object routeValues)
+        {
+            if (string.IsNullOrEmpty(actionName) || string.IsNullOrEmpty(controllerName))
+                return HtmlString.Empty;
+
+            try
+            {
+                // Extract model from route values if present
+                object model = null;
+                if (routeValues != null)
+                {
+                    var routeDict = new Microsoft.AspNetCore.Routing.RouteValueDictionary(routeValues);
+                    // Try to get a model property from route values
+                    if (routeDict.ContainsKey("model"))
+                        model = routeDict["model"];
+                    else if (routeDict.Count == 1)
+                        model = routeDict.Values.First();
+                }
+
+                // Try to render the partial view directly
+                // The view should be at Views/{ControllerName}/{ActionName}.cshtml
+                var viewName = $"{controllerName}/{actionName}";
+                
+                // First try the specific view name
+                var result = html.Partial(viewName, model);
+                if (result != null)
+                    return result;
+
+                // If that fails, try just the action name
+                return html.Partial(actionName, model) ?? HtmlString.Empty;
+            }
+            catch (Exception)
+            {
+                // Return empty on error - this allows the page to continue loading
+                return HtmlString.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Render widgets for a widget zone (non-generic overload for dynamic)
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="widgetZone">Widget zone name</param>
+        /// <returns>Widget content</returns>
+        public static IHtmlContent Widget(this IHtmlHelper<dynamic> html, string widgetZone)
+        {
+            return Widget(html, widgetZone, null);
+        }
+
+        /// <summary>
+        /// Render widgets for a widget zone with additional data (non-generic overload for dynamic)
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="widgetZone">Widget zone name</param>
+        /// <param name="additionalData">Additional data</param>
+        /// <returns>Widget content</returns>
+        public static IHtmlContent Widget(this IHtmlHelper<dynamic> html, string widgetZone, object additionalData)
+        {
+            if (string.IsNullOrEmpty(widgetZone))
+                return HtmlString.Empty;
+
+            try
+            {
+                var widgetModelFactory = EngineContext.Current.Resolve<IWidgetModelFactory>();
+                var model = widgetModelFactory.GetRenderWidgetModels(widgetZone, additionalData);
+
+                if (model == null || !model.Any())
+                    return HtmlString.Empty;
+
+                // Render the WidgetsByZone partial view
+                return html.Partial("WidgetsByZone", model);
+            }
+            catch (Exception)
+            {
+                // Return empty on error
+                return HtmlString.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Render a controller action as a partial view (non-generic overload for dynamic)
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="actionName">Action name</param>
+        /// <param name="controllerName">Controller name</param>
+        /// <returns>Action content</returns>
+        public static IHtmlContent Action(this IHtmlHelper<dynamic> html, string actionName, string controllerName)
+        {
+            return Action(html, actionName, controllerName, null);
+        }
+
+        /// <summary>
+        /// Render a controller action as a partial view with route values (non-generic overload for dynamic)
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="actionName">Action name</param>
+        /// <param name="controllerName">Controller name</param>
+        /// <param name="routeValues">Route values</param>
+        /// <returns>Action content</returns>
+        public static IHtmlContent Action(this IHtmlHelper<dynamic> html, string actionName, string controllerName, object routeValues)
+        {
+            if (string.IsNullOrEmpty(actionName) || string.IsNullOrEmpty(controllerName))
+                return HtmlString.Empty;
+
+            try
+            {
+                // Extract model from route values if present
+                object model = null;
+                if (routeValues != null)
+                {
+                    var routeDict = new Microsoft.AspNetCore.Routing.RouteValueDictionary(routeValues);
+                    // Try to get a model property from route values
+                    if (routeDict.ContainsKey("model"))
+                        model = routeDict["model"];
+                    else if (routeDict.Count == 1)
+                        model = routeDict.Values.First();
+                }
+
+                // Try to render the partial view directly
+                // The view should be at Views/{ControllerName}/{ActionName}.cshtml
+                var viewName = $"{controllerName}/{actionName}";
+                
+                // First try the specific view name
+                var result = html.Partial(viewName, model);
+                if (result != null)
+                    return result;
+
+                // If that fails, try just the action name
+                return html.Partial(actionName, model) ?? HtmlString.Empty;
+            }
+            catch (Exception)
+            {
+                // Return empty on error - this allows the page to continue loading
+                return HtmlString.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Get localized string (T helper for Razor views)
+        /// </summary>
+        /// <typeparam name="TModel">Model type</typeparam>
+        /// <param name="html">HTML helper</param>
+        /// <param name="resourceName">Resource name</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="arguments">Arguments for string formatting</param>
+        /// <returns>Localized string</returns>
+        public static LocalizedString T<TModel>(this IHtmlHelper<TModel> html, string resourceName, string defaultValue = "", params object[] arguments)
+        {
+            try
+            {
+                var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
+                var workContext = EngineContext.Current.Resolve<IWorkContext>();
+                
+                var resourceValue = localizationService.GetResource(resourceName, workContext.WorkingLanguage.Id, true, defaultValue);
+                
+                if (arguments != null && arguments.Length > 0)
+                {
+                    resourceValue = string.Format(resourceValue, arguments);
+                }
+                
+                return new LocalizedString(resourceValue);
+            }
+            catch
+            {
+                return new LocalizedString(defaultValue ?? resourceName);
+            }
+        }
+
+        /// <summary>
+        /// Get localized string (T helper for Razor views - non-generic overload)
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="resourceName">Resource name</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="arguments">Arguments for string formatting</param>
+        /// <returns>Localized string</returns>
+        public static LocalizedString T(this IHtmlHelper<dynamic> html, string resourceName, string defaultValue = "", params object[] arguments)
+        {
+            try
+            {
+                var localizationService = EngineContext.Current.Resolve<ILocalizationService>();
+                var workContext = EngineContext.Current.Resolve<IWorkContext>();
+                
+                var resourceValue = localizationService.GetResource(resourceName, workContext.WorkingLanguage.Id, true, defaultValue);
+                
+                if (arguments != null && arguments.Length > 0)
+                {
+                    resourceValue = string.Format(resourceValue, arguments);
+                }
+                
+                return new LocalizedString(resourceValue);
+            }
+            catch
+            {
+                return new LocalizedString(defaultValue ?? resourceName);
+            }
+        }
+
+        /// <summary>
+        /// JavaScript string encode (replaces HttpUtility.JavaScriptStringEncode)
+        /// </summary>
+        /// <param name="value">Value to encode</param>
+        /// <returns>Encoded string</returns>
+        public static string JavaScriptStringEncode(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return string.Empty;
+            
+            return JavaScriptEncoder.Default.Encode(value);
+        }
+
+        /// <summary>
+        /// nopCommerce dropdown list
+        /// </summary>
+        /// <typeparam name="TModel">Model</typeparam>
+        /// <param name="html">HTML Helper</param>
+        /// <param name="name">Name</param>
+        /// <param name="selectList">Select list</param>
+        /// <param name="htmlAttributes">HTML attributes</param>
+        /// <returns>HTML</returns>
+        public static IHtmlContent NopDropDownList<TModel>(this IHtmlHelper<TModel> html, string name, IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> selectList, object htmlAttributes = null)
+        {
+            return html.DropDownList(name, selectList, htmlAttributes);
+        }
+
+        /// <summary>
+        /// nopCommerce editor for
+        /// </summary>
+        /// <typeparam name="TModel">Model</typeparam>
+        /// <typeparam name="TValue">Value</typeparam>
+        /// <param name="html">HTML Helper</param>
+        /// <param name="expression">Expression</param>
+        /// <returns>HTML</returns>
+        public static IHtmlContent NopEditorFor<TModel, TValue>(this IHtmlHelper<TModel> html, System.Linq.Expressions.Expression<Func<TModel, TValue>> expression)
+        {
+            return html.EditorFor(expression);
         }
     }
 }

@@ -304,13 +304,37 @@ namespace Nop.Core
         /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\bin"</returns>
         public static string MapPath(string path)
         {
-            // HostingEnvironment doesn't exist in ASP.NET Core
-            // In ASP.NET Core, use IWebHostEnvironment injected via DI
-            // For now, use base directory approach
-            // TODO: Inject IWebHostEnvironment and use env.ContentRootPath or env.WebRootPath
-            
-            //not hosted or ASP.NET Core. Use base directory
+            // In ASP.NET Core, when running via dotnet run, AppDomain.CurrentDomain.BaseDirectory
+            // points to bin\Debug\net8.0, but we need the project root where App_Data is located.
+            // Try to find the project root by navigating up from the base directory.
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            
+            // If we're in a bin directory (typical when running dotnet run), navigate up to project root
+            if (baseDirectory.EndsWith("bin\\Debug\\net8.0\\", StringComparison.OrdinalIgnoreCase) ||
+                baseDirectory.EndsWith("bin\\Release\\net8.0\\", StringComparison.OrdinalIgnoreCase) ||
+                baseDirectory.EndsWith("bin\\Debug\\net8.0", StringComparison.OrdinalIgnoreCase) ||
+                baseDirectory.EndsWith("bin\\Release\\net8.0", StringComparison.OrdinalIgnoreCase))
+            {
+                // Navigate up 3 levels: bin\Debug\net8.0 -> bin\Debug -> bin -> project root
+                var directoryInfo = new DirectoryInfo(baseDirectory);
+                if (directoryInfo.Name == "net8.0" || directoryInfo.Name == "net8.0")
+                {
+                    directoryInfo = directoryInfo.Parent; // Debug or Release
+                    if (directoryInfo != null && directoryInfo.Name == "Debug" || directoryInfo.Name == "Release")
+                    {
+                        directoryInfo = directoryInfo.Parent; // bin
+                        if (directoryInfo != null && directoryInfo.Name == "bin")
+                        {
+                            directoryInfo = directoryInfo.Parent; // project root
+                            if (directoryInfo != null)
+                            {
+                                baseDirectory = directoryInfo.FullName;
+                            }
+                        }
+                    }
+                }
+            }
+            
             path = path.Replace("~/", "").TrimStart('/').Replace('/', '\\');
             return Path.Combine(baseDirectory, path);
         }        

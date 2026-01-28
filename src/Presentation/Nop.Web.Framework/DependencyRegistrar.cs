@@ -8,6 +8,7 @@ using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
 // using Autofac.Integration.Mvc; - Removed, use Autofac.Extensions.DependencyInjection
+using Microsoft.EntityFrameworkCore;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Configuration;
@@ -71,6 +72,12 @@ namespace Nop.Web.Framework
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
             //HTTP context and other related stuff
+            // Note: IHttpContextAccessor, IActionContextAccessor, IUrlHelperFactory, IHostApplicationLifetime
+            // are registered via AddControllersWithViews() in ServiceCollectionExtensions
+            // They should be available in Autofac through Autofac.Extensions.DependencyInjection integration
+            // But we register them explicitly here to ensure they're available
+            
+            // IHttpContextAccessor is already registered in ServiceCollectionExtensions, but register here for Autofac
             builder.RegisterType<Microsoft.AspNetCore.Http.HttpContextAccessor>()
                 .As<IHttpContextAccessor>()
                 .SingleInstance();
@@ -89,7 +96,8 @@ namespace Nop.Web.Framework
                 .As<ISession>()
                 .InstancePerLifetimeScope();
 
-            //web helper
+            //web helper - requires IActionContextAccessor, IUrlHelperFactory, IHostApplicationLifetime
+            // These should be available from AddControllersWithViews(), but register explicitly if needed
             builder.RegisterType<WebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
             //user agent helper
             builder.RegisterType<UserAgentHelper>().As<IUserAgentHelper>().InstancePerLifetimeScope();
@@ -103,23 +111,36 @@ namespace Nop.Web.Framework
             builder.Register(c => dataSettingsManager.LoadSettings()).As<DataSettings>();
             builder.Register(x => new EfDataProviderManager(x.Resolve<DataSettings>())).As<BaseDataProviderManager>().InstancePerDependency();
 
-
-            builder.Register(x => x.Resolve<BaseDataProviderManager>().LoadDataProvider()).As<IDataProvider>().InstancePerDependency();
-
+            // Register IDataProvider - only if DataSettings is valid, otherwise register a stub
             if (dataProviderSettings != null && dataProviderSettings.IsValid())
             {
-                var efDataProviderManager = new EfDataProviderManager(dataSettingsManager.LoadSettings());
-                var dataProvider = efDataProviderManager.LoadDataProvider();
-                dataProvider.InitConnectionFactory();
-
-                // DbContext registration simplified - proper setup in Startup.ConfigureServices
-                builder.RegisterType<NopObjectContext>().As<IDbContext>().InstancePerLifetimeScope();
+                builder.Register(x => x.Resolve<BaseDataProviderManager>().LoadDataProvider()).As<IDataProvider>().InstancePerDependency();
             }
             else
             {
-                // DbContext registration simplified - proper setup in Startup.ConfigureServices
-                builder.RegisterType<NopObjectContext>().As<IDbContext>().InstancePerLifetimeScope();
+                // Database not configured yet - register a stub provider that won't be used until installation
+                // This allows the application to start and show the installation page
+                builder.Register(x => new SqlServerDataProvider()).As<IDataProvider>().InstancePerDependency();
             }
+
+            // Register DbContextOptions for NopObjectContext
+            // NopObjectContext requires DbContextOptions<NopObjectContext> in constructor
+            builder.Register(c =>
+            {
+                var dataSettings = c.Resolve<DataSettings>();
+                var connectionString = dataSettings?.DataConnectionString ?? "Server=(localdb)\\mssqllocaldb;Database=nopCommerce;Trusted_Connection=True;MultipleActiveResultSets=true";
+                
+                var optionsBuilder = new DbContextOptionsBuilder<NopObjectContext>();
+                optionsBuilder.UseSqlServer(connectionString);
+                return optionsBuilder.Options;
+            }).As<DbContextOptions<NopObjectContext>>().InstancePerLifetimeScope();
+
+            // Register NopObjectContext with DbContextOptions
+            builder.Register(c =>
+            {
+                var options = c.Resolve<DbContextOptions<NopObjectContext>>();
+                return new NopObjectContext(options);
+            }).As<IDbContext>().As<NopObjectContext>().InstancePerLifetimeScope();
 
 
             builder.RegisterGeneric(typeof(EfRepository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
