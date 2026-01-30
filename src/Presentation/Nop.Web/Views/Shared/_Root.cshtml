@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "~/Views/Shared/_Root.Head.cshtml";
 }
 @Html.Widget("body_start_html_tag_after")
@@ -13,7 +13,8 @@
         AjaxCart.init(false, '.header-links .cart-qty', '.header-links .wishlist-qty', '#flyout-cart');
     </script>
     <div class="header-menu">
-        @Html.Action("TopMenu", "Catalog")
+        @* .NET 8.0: Render TopMenu directly (Html.Action failing silently) *@
+        @await Html.PartialAsync("~/Views/Catalog/TopMenu.cshtml")
     </div>
     <div class="master-wrapper-content">
         @Html.Widget("content_before")
