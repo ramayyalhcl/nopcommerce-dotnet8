@@ -1,3 +1,9 @@
+@*
+    .NET 8.0 MIGRATION NOTE:
+    Legacy used multiple @Html.Action() calls for TopicBlock, HomepageCategories, HomepageProducts, etc.
+    For now, using @Html.Action() which has compatibility shim in HtmlExtensions.cs
+    TODO: Convert all to @await Component.InvokeAsync() with proper ViewComponents
+*@
 @{
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
 
@@ -6,79 +12,18 @@
 }
 <div class="page home-page">
     <div class="page-body">
-        <div class="product-grid home-page-product-grid" style="padding: 20px; background: #f5f5f5; margin: 20px 0;">
-            <h2 class="title" style="text-align: center; color: #4CAF50; font-size: 28px; margin-bottom: 30px;">
-                ✅ .NET 8.0 Migration Success! - Sample Products from Database
-            </h2>
-            <div class="item-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Build your own computer</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Customize and build your perfect PC
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,200.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Digital Storm VANQUISH 3</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Custom performance PC
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,259.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Lenovo IdeaCentre 600</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            All-in-One PC
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$500.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Apple MacBook Pro 13-inch</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            High-performance laptop
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,800.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Asus N551JK-XO076H Laptop</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Powerful multimedia laptop
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,500.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">HP Envy 6-1180ca Laptop</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Sleek 15.6-inch Ultrabook
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,460.00</span></div>
-                    </div>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #e8f5e9; border-radius: 8px;">
-                <p style="font-size: 16px; color: #2e7d32; margin: 10px 0;">
-                    <strong>✅ Database:</strong> 45 Products & 16 Categories Successfully Created
-                </p>
-                <p style="font-size: 16px; color: #2e7d32; margin: 10px 0;">
-                    <strong>✅ Framework:</strong> Migrated from .NET Framework 4.5.1 to .NET 8.0
-                </p>
-                <p style="font-size: 16px; color: #2e7d32; margin: 10px 0;">
-                    <strong>✅ Install Flow:</strong> Complete with Sample Data
-                </p>
-            </div>
-        </div>
-        
+        @Html.Widget("home_page_top")
+        @Html.Action("TopicBlock", "Topic", new { systemName = "HomePageText" })
+        @Html.Widget("home_page_before_categories")
+        @Html.Action("HomepageCategories", "Catalog")
+        @Html.Widget("home_page_before_products")
+        @Html.Action("HomepageProducts", "Product")
+        @Html.Widget("home_page_before_best_sellers")
+        @Html.Action("HomepageBestSellers", "Product")
+        @Html.Widget("home_page_before_news")
+        @Html.Action("HomePageNews", "News")
+        @Html.Widget("home_page_before_poll")
+        @Html.Action("HomePagePolls", "Poll")
         @Html.Widget("home_page_bottom")
     </div>
 </div>
