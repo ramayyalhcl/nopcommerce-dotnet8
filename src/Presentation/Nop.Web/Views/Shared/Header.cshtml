@@ -1,23 +1,53 @@
-﻿<div class="header">
+@* 
+    .NET 8.0 MIGRATION NOTE:
+    Original used @Html.Action() for child actions (Logo, SearchBox, HeaderLinks, etc.)
+    These need to be converted to ViewComponents or hardcoded for initial demo
+    Reference: nopCommerce 4.70.0 uses ViewComponents pattern
+*@
+<div class="header">
     @Html.Widget("header")
     <div class="header-upper">
         <div class="header-selectors-wrapper">
-            @Html.Action("TaxTypeSelector", "Common")
-            @Html.Action("CurrencySelector", "Common")
-            @Html.Action("LanguageSelector", "Common")
+            @* TODO: Convert to ViewComponents - TaxTypeSelector, CurrencySelector, LanguageSelector *@
+            <div class="tax-display-type"></div>
+            <div class="currency-selector">
+                <select name="customerCurrency">
+                    <option value="1">US Dollar</option>
+                </select>
+            </div>
+            <div class="language-selector">
+                <select name="customerLanguage">
+                    <option value="1">English</option>
+                </select>
+            </div>
             @Html.Widget("header_selectors")
         </div>
         <div class="header-links-wrapper">
-            @Html.Action("HeaderLinks", "Common")
-            @Html.Action("FlyoutShoppingCart", "ShoppingCart")
+            @* TODO: Convert to ViewComponents - HeaderLinks, FlyoutShoppingCart *@
+            <ul class="header-links">
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login">Log in</a></li>
+                <li><a href="/wishlist">Wishlist</a></li>
+                <li class="shopping-cart">
+                    <a href="/cart">Shopping cart</a>
+                    <span class="cart-qty">(0)</span>
+                </li>
+            </ul>
         </div>
     </div>
     <div class="header-lower">
         <div class="header-logo">
-            @Html.Action("Logo", "Common")
+            @* TODO: Convert to ViewComponent - Logo *@
+            <a href="/">
+                <img alt="nopCommerce demo store" src="/Themes/DefaultClean/Content/images/logo.png" title="nopCommerce demo store" />
+            </a>
         </div>
         <div class="search-box store-search-box">
-            @Html.Action("SearchBox", "Catalog")
+            @* TODO: Convert to ViewComponent - SearchBox *@
+            <form action="/search" method="get">
+                <input type="text" class="search-box-text" id="small-searchterms" name="q" placeholder="Search store" />
+                <input type="submit" class="button-1 search-box-button" value="Search" />
+            </form>
         </div>
     </div>
 </div>
