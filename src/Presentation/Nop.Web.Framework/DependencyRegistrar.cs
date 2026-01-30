@@ -355,6 +355,10 @@ namespace Nop.Web.Framework
            
                 
             builder.RegisterType<RoutePublisher>().As<IRoutePublisher>().SingleInstance();
+            
+            // .NET 8.0: Register SlugRouteTransformer for SEO-friendly URLs
+            // Migrated from: GenericPathRoute (3.90) - now uses DynamicRouteValueTransformer pattern
+            builder.RegisterType<Mvc.Routing.SlugRouteTransformer>().InstancePerLifetimeScope();
 
             //Register event consumers
             var consumers = typeFinder.FindClassesOfType(typeof(IConsumer<>)).ToList();
