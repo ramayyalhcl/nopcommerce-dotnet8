@@ -263,7 +263,8 @@ namespace Nop.Services.Media
             storeLocation = !String.IsNullOrEmpty(storeLocation)
                                     ? storeLocation
                                     : _webHelper.GetStoreLocation();
-            var url = storeLocation + "content/images/thumbs/";
+            // .NET 8.0: Ensure proper URL path separator
+            var url = storeLocation.TrimEnd('/') + "/content/images/thumbs/";
 
             if (_mediaSettings.MultipleThumbDirectories)
             {
@@ -385,10 +386,11 @@ namespace Nop.Services.Media
 
             if (targetSize == 0)
             {
-                string url = (!String.IsNullOrEmpty(storeLocation)
+                // .NET 8.0: Ensure proper URL path separator
+                string baseUrl = (!String.IsNullOrEmpty(storeLocation)
                                  ? storeLocation
-                                 : _webHelper.GetStoreLocation())
-                                 + "content/images/" + defaultImageFileName;
+                                 : _webHelper.GetStoreLocation()).TrimEnd('/');
+                string url = baseUrl + "/content/images/" + defaultImageFileName;
                 return url;
             }
             else

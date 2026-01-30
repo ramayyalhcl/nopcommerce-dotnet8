@@ -1,87 +1,136 @@
+@model IList<Nop.Core.Domain.Catalog.Product>
 @{
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
-
-    //page class
     Html.AppendPageCssClassParts("html-home-page");
 }
+
+@* 
+    .NET 8.0 MIGRATION NOTE:
+    Structure matches legacy Homepage exactly - using correct CSS classes from styles.css
+    - .page.home-page wrapper
+    - .topic-block for welcome section (legacy used @Html.Action("TopicBlock"))
+    - .category-grid.home-page-category-grid for categories
+    - .product-grid.home-page-product-grid for products
+    - .item-grid with .item-box for grid layout
+    All styling now comes from styles.css, not inline styles
+*@
 <div class="page home-page">
     <div class="page-body">
-        <div class="product-grid home-page-product-grid" style="padding: 20px; background: #f5f5f5; margin: 20px 0;">
-            <h2 class="title" style="text-align: center; color: #4CAF50; font-size: 28px; margin-bottom: 30px;">
-                ✅ .NET 8.0 Migration Success! - Sample Products from Database
-            </h2>
-            <div class="item-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Build your own computer</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Customize and build your perfect PC
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,200.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Digital Storm VANQUISH 3</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Custom performance PC
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,259.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Lenovo IdeaCentre 600</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            All-in-One PC
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$500.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Apple MacBook Pro 13-inch</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            High-performance laptop
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,800.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">Asus N551JK-XO076H Laptop</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Powerful multimedia laptop
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,500.00</span></div>
-                    </div>
-                </div>
-                <div class="item-box" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <div class="product-item">
-                        <h3 class="product-title" style="color: #333; margin-bottom: 10px;">HP Envy 6-1180ca Laptop</h3>
-                        <div class="description" style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                            Sleek 15.6-inch Ultrabook
-                        </div>
-                        <div class="prices"><span class="price" style="color: #4CAF50; font-weight: bold; font-size: 18px;">$1,460.00</span></div>
-                    </div>
-                </div>
+        @Html.Widget("home_page_top")
+        
+        @* Welcome section - uses .topic-block class like legacy *@
+        <div class="topic-block">
+            <div class="title">
+                <h2>Welcome to our store</h2>
             </div>
-            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #e8f5e9; border-radius: 8px;">
-                <p style="font-size: 16px; color: #2e7d32; margin: 10px 0;">
-                    <strong>✅ Database:</strong> 45 Products & 16 Categories Successfully Created
+            <div class="body">
+                <p>
+                    Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.
                 </p>
-                <p style="font-size: 16px; color: #2e7d32; margin: 10px 0;">
-                    <strong>✅ Framework:</strong> Migrated from .NET Framework 4.5.1 to .NET 8.0
-                </p>
-                <p style="font-size: 16px; color: #2e7d32; margin: 10px 0;">
-                    <strong>✅ Install Flow:</strong> Complete with Sample Data
+                <p>
+                    If you have questions, see the <a href="#">Documentation</a>, 
+                    or post in the <a href="#">Forums</a> at 
+                    <a href="http://nopCommerce.com">nopCommerce.com</a>
                 </p>
             </div>
         </div>
         
+        @Html.Widget("home_page_before_categories")
+        
+        @* .NET 8.0: Dynamic category showcase from database *@
+        @{
+            var categories = ViewBag.Categories as IList<Nop.Core.Domain.Catalog.Category>;
+            var categoryPictureUrls = ViewBag.CategoryPictureUrls as Dictionary<int, string>;
+        }
+        @if (categories != null && categories.Any())
+        {
+            <div class="category-grid home-page-category-grid">
+                <div class="item-grid">
+                    @foreach (var category in categories)
+                    {
+                        var pictureUrl = categoryPictureUrls?[category.Id] ?? "/content/images/thumbs/default-image_300.png";
+                        
+                        <div class="item-box">
+                            <div class="category-item">
+                                <h2 class="title">
+                                    <a href="/category/@category.Id">@category.Name</a>
+                                </h2>
+                                <div class="picture">
+                                    <a href="/category/@category.Id">
+                                        <img src="@pictureUrl" alt="@category.Name" title="@category.Name" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        
+        @Html.Widget("home_page_before_products")
+        
+        @* Featured products - uses .product-grid.home-page-product-grid like legacy *@
+        @if (Model != null && Model.Any())
+        {
+            var pictureUrls = ViewBag.PictureUrls as Dictionary<int, string>;
+            
+            <div class="product-grid home-page-product-grid">
+                <div class="title">
+                    <strong>Featured products</strong>
+                </div>
+                <div class="item-grid">
+                    @foreach (var product in Model)
+                    {
+                        var pictureUrl = pictureUrls?[product.Id] ?? "/images/thumbs/default-image_300.png";
+                        
+                        <div class="item-box">
+                            <div class="product-item" data-productid="@product.Id">
+                                <div class="picture">
+                                    <a href="/product/@product.Id" title="@product.Name">
+                                        <img alt="@product.Name" 
+                                             src="@pictureUrl" 
+                                             title="@product.Name" />
+                                    </a>
+                                </div>
+                                <div class="details">
+                                    <h2 class="product-title">
+                                        <a href="/product/@product.Id">@product.Name</a>
+                                    </h2>
+                                    <div class="product-rating-box" title="5 review(s)">
+                                        <div class="rating">
+                                            <div style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="add-info">
+                                        <div class="prices">
+                                            <span class="price actual-price">$@product.Price.ToString("N2")</span>
+                                        </div>
+                                        <div class="buttons">
+                                            <input type="button" 
+                                                   value="Add to cart" 
+                                                   class="button-2 product-box-add-to-cart-button" />
+                                            <input type="button" 
+                                                   value="" 
+                                                   title="Add to compare list" 
+                                                   class="button-2 add-to-compare-list-button" />
+                                            <input type="button" 
+                                                   value="" 
+                                                   title="Add to wishlist" 
+                                                   class="button-2 add-to-wishlist-button" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <p style="text-align: center; color: #999;">No products marked for homepage display.</p>
+        }
+        
         @Html.Widget("home_page_bottom")
     </div>
 </div>
-
-
-

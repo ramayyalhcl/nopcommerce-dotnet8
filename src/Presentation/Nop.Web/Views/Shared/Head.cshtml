@@ -1,1 +1,13 @@
-﻿@*This is here so that if an error doesn't get throw if a theme doesn't have a Shared/Head.cshtml*@
+@*
+    .NET 8.0 MIGRATION NOTE:
+    This file loads theme-specific CSS and JavaScript
+    Legacy used Request.Browser (not available in .NET Core)
+    Simplified for .NET 8.0 - loads theme CSS directly
+*@
+@{
+    // Load main theme CSS
+    Html.AppendCssFileParts("~/Themes/DefaultClean/Content/css/styles.css");
+    
+    // Load jQuery UI CSS
+    Html.AppendCssFileParts("~/Content/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+}

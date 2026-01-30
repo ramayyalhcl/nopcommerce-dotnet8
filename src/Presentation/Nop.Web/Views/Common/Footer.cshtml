@@ -1,8 +1,16 @@
-﻿@model FooterModel
+@model FooterModel
 @using Nop.Core
 @using Nop.Core.Domain.Tax
 @using Nop.Core.Infrastructure
 @using Nop.Web.Models.Common;
+
+@*
+    .NET 8.0 MIGRATION NOTE:
+    Preserved as-is from legacy with minimal changes
+    @Html.Action() calls kept (compatibility shim in HtmlExtensions.cs handles these)
+    All Model-based rendering preserved
+*@
+
 <div class="footer">
     <div class="footer-upper">
         <div class="footer-block information">
