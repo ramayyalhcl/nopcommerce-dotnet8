@@ -368,7 +368,7 @@ namespace Nop.Services.Installation
         protected virtual void InstallLocaleResources()
         {
             //'English' language
-            var language = _languageRepository.Table.Single(l => l.Name == "English");
+            var language = _languageRepository.Table.First(l => l.Name == "English");
 
             //save resources
             foreach (var filePath in System.IO.Directory.EnumerateFiles(CommonHelper.MapPath("~/App_Data/Localization/"), "*.nopres.xml", SearchOption.TopDirectoryOnly))
@@ -455,7 +455,7 @@ namespace Nop.Services.Installation
                     CurrencyCode = "EUR",
                     Rate = 0.95M,
                     DisplayLocale = "",
-                    //CustomFormatting = "ˆ0.00",
+                    //CustomFormatting = "?0.00",
                     CustomFormatting = string.Format("{0}0.00", "\u20ac"),
                     Published = true,
                     DisplayOrder = 6,
@@ -4263,7 +4263,7 @@ namespace Nop.Services.Installation
                 Email = fourthUserEmail,
                 FaxNumber = "",
                 Company = "Pan Company",
-                Address1 = "St Katharine’s West 16",
+                Address1 = "St Katharine?s West 16",
                 Address2 = "",
                 City = "St Andrews",
                 Country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "GBR"),
@@ -6038,7 +6038,7 @@ namespace Nop.Services.Installation
 
             settingService.SaveSetting(new LocalizationSettings
             {
-                DefaultAdminLanguageId = _languageRepository.Table.Single(l => l.Name == "English").Id,
+                DefaultAdminLanguageId = _languageRepository.Table.First(l => l.Name == "English").Id,
                 UseImagesForLanguageSelection = false,
                 SeoFriendlyUrlsForLanguagesEnabled = false,
                 AutomaticallyDetectLanguage = false,
@@ -6178,16 +6178,16 @@ namespace Nop.Services.Installation
             settingService.SaveSetting(new CurrencySettings
             {
                 DisplayCurrencyLabel = false,
-                PrimaryStoreCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id,
-                PrimaryExchangeRateCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id,
+                PrimaryStoreCurrencyId = _currencyRepository.Table.First(c => c.CurrencyCode == "USD").Id,
+                PrimaryExchangeRateCurrencyId = _currencyRepository.Table.First(c => c.CurrencyCode == "USD").Id,
                 ActiveExchangeRateProviderSystemName = "CurrencyExchange.MoneyConverter",
                 AutoUpdateEnabled = false
             });
 
             settingService.SaveSetting(new MeasureSettings
             {
-                BaseDimensionId = _measureDimensionRepository.Table.Single(m => m.SystemKeyword == "inches").Id,
-                BaseWeightId = _measureWeightRepository.Table.Single(m => m.SystemKeyword == "lb").Id,
+                BaseDimensionId = _measureDimensionRepository.Table.First(m => m.SystemKeyword == "inches").Id,
+                BaseWeightId = _measureWeightRepository.Table.First(m => m.SystemKeyword == "lb").Id,
             });
 
             settingService.SaveSetting(new MessageTemplatesSettings
@@ -7110,7 +7110,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7129,7 +7129,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Processor"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Processor"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -7152,7 +7152,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "RAM"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "RAM"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -7181,7 +7181,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "HDD"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "HDD"),
                         AttributeControlType = AttributeControlType.RadioList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -7203,7 +7203,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "OS"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "OS"),
                         AttributeControlType = AttributeControlType.RadioList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -7227,7 +7227,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Software"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Software"),
                         AttributeControlType = AttributeControlType.Checkboxes,
                         ProductAttributeValues =
                         {
@@ -7260,7 +7260,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Desktops"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Desktops"),
                         DisplayOrder = 1,
                     }
                 }
@@ -7289,7 +7289,7 @@ namespace Nop.Services.Installation
                 Name = "Digital Storm VANQUISH 3 Custom Performance PC",
                 Sku = "DS_VA3_PC",
                 ShortDescription = "Digital Storm Vanquish 3 Desktop PC",
-                FullDescription = "<p>Blow the doors off today’s most demanding games with maximum detail, speed, and power for an immersive gaming experience without breaking the bank.</p><p>Stay ahead of the competition, VANQUISH 3 is fully equipped to easily handle future upgrades, keeping your system on the cutting edge for years to come.</p><p>Each system is put through an extensive stress test, ensuring you experience zero bottlenecks and get the maximum performance from your hardware.</p>",
+                FullDescription = "<p>Blow the doors off today?s most demanding games with maximum detail, speed, and power for an immersive gaming experience without breaking the bank.</p><p>Stay ahead of the competition, VANQUISH 3 is fully equipped to easily handle future upgrades, keeping your system on the cutting edge for years to come.</p><p>Each system is put through an extensive stress test, ensuring you experience zero bottlenecks and get the maximum performance from your hardware.</p>",
                 ProductTemplateId = productTemplateSimple.Id,
                 //SeName = "compaq-presario-sr1519x-pentium-4-desktop-pc-with-cdrw",
                 AllowCustomerReviews = true,
@@ -7299,7 +7299,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7316,7 +7316,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Desktops"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Desktops"),
                         DisplayOrder = 1,
                     }
                 }
@@ -7350,7 +7350,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7367,7 +7367,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Desktops"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Desktops"),
                         DisplayOrder = 1,
                     }
                 }
@@ -7405,7 +7405,7 @@ namespace Nop.Services.Installation
                 Length = 3,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7423,7 +7423,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Notebooks"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Notebooks"),
                         DisplayOrder = 1,
                     }
                 },
@@ -7431,7 +7431,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "Apple"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "Apple"),
                         DisplayOrder = 2,
                     }
                 },
@@ -7442,28 +7442,28 @@ namespace Nop.Services.Installation
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 1,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Screensize").SpecificationAttributeOptions.Single(sao => sao.Name == "13.0''")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Screensize").SpecificationAttributeOptions.First(sao => sao.Name == "13.0''")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 2,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.Single(sao => sao.Name == "Intel Core i5")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.First(sao => sao.Name == "Intel Core i5")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 3,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Memory").SpecificationAttributeOptions.Single(sao => sao.Name == "4 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Memory").SpecificationAttributeOptions.First(sao => sao.Name == "4 GB")
                     }
                     //new ProductSpecificationAttribute
                     //{
                     //    AllowFiltering = false,
                     //    ShowOnProductPage = true,
                     //    DisplayOrder = 4,
-                    //    SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.Single(sao => sao.Name == "160 GB")
+                    //    SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.First(sao => sao.Name == "160 GB")
                     //}
                 }
             };
@@ -7491,7 +7491,7 @@ namespace Nop.Services.Installation
                 Name = "Asus N551JK-XO076H Laptop",
                 Sku = "AS_551_LP",
                 ShortDescription = "Laptop Asus N551JK Intel Core i7-4710HQ 2.5 GHz, RAM 16GB, HDD 1TB, Video NVidia GTX 850M 4GB, BluRay, 15.6, Full HD, Win 8.1",
-                FullDescription = "<p>The ASUS N550JX combines cutting-edge audio and visual technology to deliver an unsurpassed multimedia experience. A full HD wide-view IPS panel is tailor-made for watching movies and the intuitive touchscreen makes for easy, seamless navigation. ASUS has paired the N550JX’s impressive display with SonicMaster Premium, co-developed with Bang & Olufsen ICEpower® audio experts, for true surround sound. A quad-speaker array and external subwoofer combine for distinct vocals and a low bass that you can feel.</p>",
+                FullDescription = "<p>The ASUS N550JX combines cutting-edge audio and visual technology to deliver an unsurpassed multimedia experience. A full HD wide-view IPS panel is tailor-made for watching movies and the intuitive touchscreen makes for easy, seamless navigation. ASUS has paired the N550JX?s impressive display with SonicMaster Premium, co-developed with Bang & Olufsen ICEpower? audio experts, for true surround sound. A quad-speaker array and external subwoofer combine for distinct vocals and a low bass that you can feel.</p>",
                 ProductTemplateId = productTemplateSimple.Id,
                 //SeName = "asus-eee-pc-900ha-89-inch-netbook-black",
                 AllowCustomerReviews = true,
@@ -7501,7 +7501,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7518,7 +7518,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Notebooks"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Notebooks"),
                         DisplayOrder = 1,
                     }
                 },
@@ -7529,28 +7529,28 @@ namespace Nop.Services.Installation
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 1,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Screensize").SpecificationAttributeOptions.Single(sao => sao.Name == "15.6''")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Screensize").SpecificationAttributeOptions.First(sao => sao.Name == "15.6''")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 2,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.Single(sao => sao.Name == "Intel Core i7")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.First(sao => sao.Name == "Intel Core i7")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 3,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Memory").SpecificationAttributeOptions.Single(sao => sao.Name == "16 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Memory").SpecificationAttributeOptions.First(sao => sao.Name == "16 GB")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 4,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.Single(sao => sao.Name == "1 TB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.First(sao => sao.Name == "1 TB")
                     }
                 }
             };
@@ -7583,7 +7583,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7601,7 +7601,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Notebooks"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Notebooks"),
                         DisplayOrder = 1,
                     }
                 },
@@ -7612,28 +7612,28 @@ namespace Nop.Services.Installation
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 1,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Screensize").SpecificationAttributeOptions.Single(sao => sao.Name == "15.0''")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Screensize").SpecificationAttributeOptions.First(sao => sao.Name == "15.0''")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 2,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.Single(sao => sao.Name == "Intel Core i5")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.First(sao => sao.Name == "Intel Core i5")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 3,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Memory").SpecificationAttributeOptions.Single(sao => sao.Name == "8 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Memory").SpecificationAttributeOptions.First(sao => sao.Name == "8 GB")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 4,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.Single(sao => sao.Name == "128 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.First(sao => sao.Name == "128 GB")
                     }
                 }
             };
@@ -7666,7 +7666,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7683,7 +7683,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Notebooks"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Notebooks"),
                         DisplayOrder = 1,
                     }
                 },
@@ -7691,7 +7691,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "HP"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "HP"),
                         DisplayOrder = 3,
                     }
                 },
@@ -7702,28 +7702,28 @@ namespace Nop.Services.Installation
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 1,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Screensize").SpecificationAttributeOptions.Single(sao => sao.Name == "13.3''")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Screensize").SpecificationAttributeOptions.First(sao => sao.Name == "13.3''")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 2,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.Single(sao => sao.Name == "Intel Core i5")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.First(sao => sao.Name == "Intel Core i5")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 3,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Memory").SpecificationAttributeOptions.Single(sao => sao.Name == "4 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Memory").SpecificationAttributeOptions.First(sao => sao.Name == "4 GB")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 4,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.Single(sao => sao.Name == "128 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.First(sao => sao.Name == "128 GB")
                     }
                 }
             };
@@ -7748,7 +7748,7 @@ namespace Nop.Services.Installation
                 VisibleIndividually = true,
                 Name = "HP Envy 6-1180ca 15.6-Inch Sleekbook",
                 Sku = "HP_ESB_15",
-                ShortDescription = "HP ENVY 6-1202ea Ultrabook Beats Audio, 3rd generation Intel® CoreTM i7-3517U processor, 8GB RAM, 500GB HDD, Microsoft Windows 8, AMD Radeon HD 8750M (2 GB DDR3 dedicated)",
+                ShortDescription = "HP ENVY 6-1202ea Ultrabook Beats Audio, 3rd generation Intel? CoreTM i7-3517U processor, 8GB RAM, 500GB HDD, Microsoft Windows 8, AMD Radeon HD 8750M (2 GB DDR3 dedicated)",
                 FullDescription = "The UltrabookTM that's up for anything. Thin and light, the HP ENVY is the large screen UltrabookTM with Beats AudioTM. With a soft-touch base that makes it easy to grab and go, it's a laptop that's up for anything.<br /><br /><b>Features</b><br /><br />- Windows 8 or other operating systems available<br /><br /><b>Top performance. Stylish design. Take notice.</b><br /><br />- At just 19.8 mm (0.78 in) thin, the HP ENVY UltrabookTM is slim and light enough to take anywhere. It's the laptop that gets you noticed with the power to get it done.<br />- With an eye-catching metal design, it's a laptop that you want to carry with you. The soft-touch, slip-resistant base gives you the confidence to carry it with ease.<br /><br /><b>More entertaining. More gaming. More fun.</b><br /><br />- Own the UltrabookTM with Beats AudioTM, dual speakers, a subwoofer, and an awesome display. Your music, movies and photo slideshows will always look and sound their best.<br />- Tons of video memory let you experience incredible gaming and multimedia without slowing down. Create and edit videos in a flash. And enjoy more of what you love to the fullest.<br />- The HP ENVY UltrabookTM is loaded with the ports you'd expect on a world-class laptop, but on a Sleekbook instead. Like HDMI, USB, RJ-45, and a headphone jack. You get all the right connections without compromising size.<br /><br /><b>Only from HP.</b><br /><br />- Life heats up. That's why there's HP CoolSense technology, which automatically adjusts your notebook's temperature based on usage and conditions. It stays cool. You stay comfortable.<br />- With HP ProtectSmart, your notebook's data stays safe from accidental bumps and bruises. It senses motion and plans ahead, stopping your hard drive and protecting your entire digital life.<br />- Keep playing even in dimly lit rooms or on red eye flights. The optional backlit keyboard[1] is full-size so you don't compromise comfort. Backlit keyboard. Another bright idea.<br /><br />",
                 ProductTemplateId = productTemplateSimple.Id,
                 //SeName = "hp-pavilion-g60-230us-160-inch-laptop",
@@ -7759,7 +7759,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7776,7 +7776,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Notebooks"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Notebooks"),
                         DisplayOrder = 1,
                     }
                 },
@@ -7784,7 +7784,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "HP"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "HP"),
                         DisplayOrder = 4,
                     }
                 },
@@ -7795,28 +7795,28 @@ namespace Nop.Services.Installation
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 1,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Screensize").SpecificationAttributeOptions.Single(sao => sao.Name == "15.6''")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Screensize").SpecificationAttributeOptions.First(sao => sao.Name == "15.6''")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 2,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.Single(sao => sao.Name == "Intel Core i7")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.First(sao => sao.Name == "Intel Core i7")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 3,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Memory").SpecificationAttributeOptions.Single(sao => sao.Name == "8 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Memory").SpecificationAttributeOptions.First(sao => sao.Name == "8 GB")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 4,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.Single(sao => sao.Name == "500 GB")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.First(sao => sao.Name == "500 GB")
                     }
                 }
             };
@@ -7849,7 +7849,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7866,7 +7866,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Notebooks"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Notebooks"),
                         DisplayOrder = 1,
                     }
                 },
@@ -7877,28 +7877,28 @@ namespace Nop.Services.Installation
                         AllowFiltering = false,
                         ShowOnProductPage = true,
                         DisplayOrder = 1,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Screensize").SpecificationAttributeOptions.Single(sao => sao.Name == "14.0''")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Screensize").SpecificationAttributeOptions.First(sao => sao.Name == "14.0''")
                     },
                     new ProductSpecificationAttribute
                     {
                         AllowFiltering = true,
                         ShowOnProductPage = true,
                         DisplayOrder = 2,
-                        SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.Single(sao => sao.Name == "Intel Core i7")
+                        SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "CPU Type").SpecificationAttributeOptions.First(sao => sao.Name == "Intel Core i7")
                     }
                     //new ProductSpecificationAttribute
                     //{
                     //    AllowFiltering = true,
                     //    ShowOnProductPage = true,
                     //    DisplayOrder = 3,
-                    //    SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Memory").SpecificationAttributeOptions.Single(sao => sao.Name == "1 GB")
+                    //    SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Memory").SpecificationAttributeOptions.First(sao => sao.Name == "1 GB")
                     //},
                     //new ProductSpecificationAttribute
                     //{
                     //    AllowFiltering = false,
                     //    ShowOnProductPage = true,
                     //    DisplayOrder = 4,
-                    //    SpecificationAttributeOption = _specificationAttributeRepository.Table.Single(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.Single(sao => sao.Name == "250 GB")
+                    //    SpecificationAttributeOption = _specificationAttributeRepository.Table.First(sa => sa.Name == "Hardrive").SpecificationAttributeOptions.First(sao => sao.Name == "250 GB")
                     //}
                 }
             };
@@ -7932,7 +7932,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -7949,7 +7949,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Software"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Software"),
                         DisplayOrder = 1,
                     }
                 }
@@ -7984,7 +7984,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8001,7 +8001,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Software"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Software"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8025,7 +8025,7 @@ namespace Nop.Services.Installation
                 Name = "Sound Forge Pro 11 (recurring)",
                 Sku = "SF_PRO_11",
                 ShortDescription = "Advanced audio waveform editor.",
-                FullDescription = "<p>Sound Forge™ Pro is the application of choice for a generation of creative and prolific artists, producers, and editors. Record audio quickly on a rock-solid platform, address sophisticated audio processing tasks with surgical precision, and render top-notch master files with ease. New features include one-touch recording, metering for the new critical standards, more repair and restoration tools, and exclusive round-trip interoperability with SpectraLayers Pro. Taken together, these enhancements make this edition of Sound Forge Pro the deepest and most advanced audio editing platform available.</p>",
+                FullDescription = "<p>Sound Forge? Pro is the application of choice for a generation of creative and prolific artists, producers, and editors. Record audio quickly on a rock-solid platform, address sophisticated audio processing tasks with surgical precision, and render top-notch master files with ease. New features include one-touch recording, metering for the new critical standards, more repair and restoration tools, and exclusive round-trip interoperability with SpectraLayers Pro. Taken together, these enhancements make this edition of Sound Forge Pro the deepest and most advanced audio editing platform available.</p>",
                 ProductTemplateId = productTemplateSimple.Id,
                 //SeName = "major-league-baseball-2k9",
                 IsRecurring = true,
@@ -8039,7 +8039,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8056,7 +8056,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Software"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Software"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8085,7 +8085,7 @@ namespace Nop.Services.Installation
                 Name = "Nikon D5500 DSLR",
                 Sku = "N5500DS_0",
                 ShortDescription = "Slim, lightweight Nikon D5500 packs a vari-angle touchscreen",
-                FullDescription = "Nikon has announced its latest DSLR, the D5500. A lightweight, compact DX-format camera with a 24.2MP sensor, it’s the first of its type to offer a vari-angle touchscreen. The D5500 replaces the D5300 in Nikon’s range, and while it offers much the same features the company says it’s a much slimmer and lighter prospect. There’s a deep grip for easier handling and built-in Wi-Fi that lets you transfer and share shots via your phone or tablet.",
+                FullDescription = "Nikon has announced its latest DSLR, the D5500. A lightweight, compact DX-format camera with a 24.2MP sensor, it?s the first of its type to offer a vari-angle touchscreen. The D5500 replaces the D5300 in Nikon?s range, and while it offers much the same features the company says it?s a much slimmer and lighter prospect. There?s a deep grip for easier handling and built-in Wi-Fi that lets you transfer and share shots via your phone or tablet.",
                 ProductTemplateId = productTemplateGrouped.Id,
                 //SeName = "canon-digital-slr-camera",
                 AllowCustomerReviews = true,
@@ -8096,7 +8096,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8112,7 +8112,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Camera & photo"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Camera & photo"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8146,7 +8146,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8183,7 +8183,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8225,7 +8225,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8242,7 +8242,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Camera & photo"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Camera & photo"),
                         DisplayOrder = 3,
                     }
                 }
@@ -8277,7 +8277,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8294,7 +8294,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Camera & photo"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Camera & photo"),
                         DisplayOrder = 2,
                     }
                 },
@@ -8302,7 +8302,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "Apple"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "Apple"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8339,7 +8339,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8358,7 +8358,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Cell phones"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Cell phones"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8393,7 +8393,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8411,7 +8411,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Cell phones"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Cell phones"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8451,7 +8451,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8468,7 +8468,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Cell phones"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Cell phones"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8495,7 +8495,7 @@ namespace Nop.Services.Installation
                 Name = "Beats Pill 2.0 Wireless Speaker",
                 Sku = "BP_20_WSP",
                 ShortDescription = "<b>Pill 2.0 Portable Bluetooth Speaker (1-Piece):</b> Watch your favorite movies and listen to music with striking sound quality. This lightweight, portable speaker is easy to take with you as you travel to any destination, keeping you entertained wherever you are. ",
-                FullDescription = "<ul><li>Pair and play with your Bluetooth® device with 30 foot range</li><li>Built-in speakerphone</li><li>7 hour rechargeable battery</li><li>Power your other devices with USB charge out</li><li>Tap two Beats Pills™ together for twice the sound with Beats Bond™</li></ul>",
+                FullDescription = "<ul><li>Pair and play with your Bluetooth? device with 30 foot range</li><li>Built-in speakerphone</li><li>7 hour rechargeable battery</li><li>Power your other devices with USB charge out</li><li>Tap two Beats Pills? together for twice the sound with Beats Bond?</li></ul>",
                 ProductTemplateId = productTemplateSimple.Id,
                 //SeName = "acer-aspire-one-89-mini-notebook-case-black",
                 AllowCustomerReviews = true,
@@ -8506,7 +8506,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8545,7 +8545,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Others"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Others"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8584,7 +8584,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8601,7 +8601,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Others"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Others"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8634,7 +8634,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Electronics & Software").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Electronics & Software").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8651,7 +8651,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Others"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Others"),
                         DisplayOrder = 1,
                     }
                 }
@@ -8687,7 +8687,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8704,7 +8704,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Size"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Size"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -8737,7 +8737,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Color"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Color"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -8758,7 +8758,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Print"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Print"),
                         AttributeControlType = AttributeControlType.ImageSquares,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -8784,7 +8784,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Shoes"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Shoes"),
                         DisplayOrder = 1,
                     }
                 },
@@ -8792,7 +8792,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "Nike"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "Nike"),
                         DisplayOrder = 2,
                     }
                 },
@@ -8804,8 +8804,8 @@ namespace Nop.Services.Installation
                         ShowOnProductPage = false,
                         DisplayOrder = 1,
                         SpecificationAttributeOption =
-                            _specificationAttributeRepository.Table.Single(sa => sa.Name == "Color")
-                                .SpecificationAttributeOptions.Single(sao => sao.Name == "Grey")
+                            _specificationAttributeRepository.Table.First(sa => sa.Name == "Color")
+                                .SpecificationAttributeOptions.First(sao => sao.Name == "Grey")
                     }
                 }
             };
@@ -8845,7 +8845,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -8863,7 +8863,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Size"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Size"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -8896,7 +8896,7 @@ namespace Nop.Services.Installation
                     },
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Color"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Color"),
                         AttributeControlType = AttributeControlType.ColorSquares,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -8930,7 +8930,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Shoes"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Shoes"),
                         DisplayOrder = 1,
                     }
                 },
@@ -8942,8 +8942,8 @@ namespace Nop.Services.Installation
                         ShowOnProductPage = false,
                         DisplayOrder = 1,
                         SpecificationAttributeOption =
-                            _specificationAttributeRepository.Table.Single(sa => sa.Name == "Color")
-                                .SpecificationAttributeOptions.Single(sao => sao.Name == "Grey")
+                            _specificationAttributeRepository.Table.First(sa => sa.Name == "Color")
+                                .SpecificationAttributeOptions.First(sao => sao.Name == "Grey")
                     },
                     new ProductSpecificationAttribute
                     {
@@ -8951,8 +8951,8 @@ namespace Nop.Services.Installation
                         ShowOnProductPage = false,
                         DisplayOrder = 2,
                         SpecificationAttributeOption =
-                            _specificationAttributeRepository.Table.Single(sa => sa.Name == "Color")
-                                .SpecificationAttributeOptions.Single(sao => sao.Name == "Red")
+                            _specificationAttributeRepository.Table.First(sa => sa.Name == "Color")
+                                .SpecificationAttributeOptions.First(sao => sao.Name == "Red")
                     },
                     new ProductSpecificationAttribute
                     {
@@ -8960,8 +8960,8 @@ namespace Nop.Services.Installation
                         ShowOnProductPage = false,
                         DisplayOrder = 3,
                         SpecificationAttributeOption =
-                            _specificationAttributeRepository.Table.Single(sa => sa.Name == "Color")
-                                .SpecificationAttributeOptions.Single(sao => sao.Name == "Blue")
+                            _specificationAttributeRepository.Table.First(sa => sa.Name == "Color")
+                                .SpecificationAttributeOptions.First(sao => sao.Name == "Blue")
                     },
                 }
             };
@@ -9010,7 +9010,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9027,7 +9027,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Shoes"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Shoes"),
                         DisplayOrder = 1,
                     }
                 },
@@ -9035,7 +9035,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "Nike"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "Nike"),
                         DisplayOrder = 2,
                     }
                 },
@@ -9047,8 +9047,8 @@ namespace Nop.Services.Installation
                         ShowOnProductPage = false,
                         DisplayOrder = 1,
                         SpecificationAttributeOption =
-                            _specificationAttributeRepository.Table.Single(sa => sa.Name == "Color")
-                                .SpecificationAttributeOptions.Single(sao => sao.Name == "Grey")
+                            _specificationAttributeRepository.Table.First(sa => sa.Name == "Color")
+                                .SpecificationAttributeOptions.First(sao => sao.Name == "Grey")
                     }
                 }
             };
@@ -9073,7 +9073,7 @@ namespace Nop.Services.Installation
                 Name = "Nike Tailwind Loose Short-Sleeve Running Shirt",
                 Sku = "NK_TLS_RS",
                 ShortDescription = "",
-                FullDescription = "<p>Boost your adrenaline with the Nike® Women's Tailwind Running Shirt. The lightweight, slouchy fit is great for layering, and moisture-wicking fabrics keep you feeling at your best. This tee has a notched hem for an enhanced range of motion, while flat seams with reinforcement tape lessen discomfort and irritation over longer distances. Put your keys and card in the side zip pocket and take off in your Nike® running t-shirt.</p>",
+                FullDescription = "<p>Boost your adrenaline with the Nike? Women's Tailwind Running Shirt. The lightweight, slouchy fit is great for layering, and moisture-wicking fabrics keep you feeling at your best. This tee has a notched hem for an enhanced range of motion, while flat seams with reinforcement tape lessen discomfort and irritation over longer distances. Put your keys and card in the side zip pocket and take off in your Nike? running t-shirt.</p>",
                 ProductTemplateId = productTemplateSimple.Id,
                 //SeName = "50s-rockabilly-polka-dot-top-jr-plus-size",
                 AllowCustomerReviews = true,
@@ -9084,7 +9084,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 3,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9100,7 +9100,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Size"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Size"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -9148,7 +9148,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Clothing"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Clothing"),
                         DisplayOrder = 1,
                     }
                 },
@@ -9156,7 +9156,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductManufacturer
                     {
-                        Manufacturer = _manufacturerRepository.Table.Single(c => c.Name == "Nike"),
+                        Manufacturer = _manufacturerRepository.Table.First(c => c.Name == "Nike"),
                         DisplayOrder = 2,
                     }
                 }
@@ -9189,7 +9189,7 @@ namespace Nop.Services.Installation
                 Length = 3,
                 Width = 3,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9225,7 +9225,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Clothing"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Clothing"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9258,7 +9258,7 @@ namespace Nop.Services.Installation
                 Length = 3,
                 Width = 3,
                 Height = 3,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9275,7 +9275,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Custom Text"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Custom Text"),
                         TextPrompt = "Enter your text:",
                         AttributeControlType = AttributeControlType.TextBox,
                         IsRequired = true,
@@ -9285,7 +9285,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Clothing"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Clothing"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9321,7 +9321,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9357,7 +9357,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Clothing"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Clothing"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9399,7 +9399,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9416,7 +9416,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductAttributeMapping
                     {
-                        ProductAttribute = _productAttributeRepository.Table.Single(x => x.Name == "Size"),
+                        ProductAttribute = _productAttributeRepository.Table.First(x => x.Name == "Size"),
                         AttributeControlType = AttributeControlType.DropdownList,
                         IsRequired = true,
                         ProductAttributeValues =
@@ -9452,7 +9452,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Accessories"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Accessories"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9488,7 +9488,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 ProductAvailabilityRangeId = productAvailabilityRange.Id,
                 StockQuantity = 0,
@@ -9506,7 +9506,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Accessories"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Accessories"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9541,7 +9541,7 @@ namespace Nop.Services.Installation
                 Length = 7,
                 Width = 7,
                 Height = 7,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Apparel").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Apparel").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9558,7 +9558,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Accessories"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Accessories"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9608,7 +9608,7 @@ namespace Nop.Services.Installation
                 //SeName = "poker-face",
                 AllowCustomerReviews = true,
                 Price = 2.8M,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Downloadable Products").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Downloadable Products").Id,
                 ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9632,7 +9632,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Digital downloads"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Digital downloads"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9683,7 +9683,7 @@ namespace Nop.Services.Installation
                 MinimumCustomerEnteredPrice = 0.5M,
                 MaximumCustomerEnteredPrice = 100M,
                 AllowCustomerReviews = true,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Downloadable Products").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Downloadable Products").Id,
                 ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9707,7 +9707,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Digital downloads"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Digital downloads"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9750,7 +9750,7 @@ namespace Nop.Services.Installation
                 MinimumCustomerEnteredPrice = 0.5M,
                 MaximumCustomerEnteredPrice = 1000M,
                 Price = decimal.Zero,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Downloadable Products").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Downloadable Products").Id,
                 ManageInventoryMethod = ManageInventoryMethod.DontManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9772,7 +9772,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Digital downloads"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Digital downloads"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9810,7 +9810,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Books").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Books").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9827,7 +9827,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Books"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Books"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9860,7 +9860,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Books").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Books").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9877,7 +9877,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Books"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Books"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9914,7 +9914,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Books").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Books").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9931,7 +9931,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Books"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Books"),
                         DisplayOrder = 1,
                     }
                 }
@@ -9972,7 +9972,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Jewelry").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Jewelry").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -9990,7 +9990,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Jewelry"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Jewelry"),
                         DisplayOrder = 1,
                     }
                 }
@@ -10025,7 +10025,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Jewelry").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Jewelry").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -10042,7 +10042,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Jewelry"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Jewelry"),
                         DisplayOrder = 1,
                     }
                 }
@@ -10079,7 +10079,7 @@ namespace Nop.Services.Installation
                 Length = 2,
                 Width = 2,
                 Height = 2,
-                TaxCategoryId = _taxCategoryRepository.Table.Single(tc => tc.Name == "Jewelry").Id,
+                TaxCategoryId = _taxCategoryRepository.Table.First(tc => tc.Name == "Jewelry").Id,
                 ManageInventoryMethod = ManageInventoryMethod.ManageStock,
                 StockQuantity = 10000,
                 NotifyAdminForQuantityBelow = 1,
@@ -10096,7 +10096,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Jewelry"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Jewelry"),
                         DisplayOrder = 1,
                     }
                 }
@@ -10144,7 +10144,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Gift Cards"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Gift Cards"),
                         DisplayOrder = 2,
                     }
                 }
@@ -10196,7 +10196,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Gift Cards"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Gift Cards"),
                         DisplayOrder = 3,
                     }
                 }
@@ -10246,7 +10246,7 @@ namespace Nop.Services.Installation
                 {
                     new ProductCategory
                     {
-                        Category = _categoryRepository.Table.Single(c => c.Name == "Gift Cards"),
+                        Category = _categoryRepository.Table.First(c => c.Name == "Gift Cards"),
                         DisplayOrder = 4,
                     }
                 }

@@ -216,14 +216,14 @@
                                     {
                                         <div class="radio">
                                             <label>
-                                                @Html.RadioButton("DataProvider", "sqlce", (Model.DataProvider == "sqlce"), new { id = "provider_sqlce" })
+                                                @Html.RadioButtonFor(m => m.DataProvider, "sqlce", new { id = "provider_sqlce" })
                                                 @ILS.GetResource("SqlCompact")
                                             </label>
                                         </div>
                                     }
                                     <div class="radio">
                                         <label>
-                                            @Html.RadioButton("DataProvider", "sqlserver", (Model.DataProvider == "sqlserver"), new { id = "provider_sqlserver" })
+                                            @Html.RadioButtonFor(m => m.DataProvider, "sqlserver", new { id = "provider_sqlserver" })
                                             @ILS.GetResource("SqlStandard") <strong>@ILS.GetResource("Recommended")</strong>
                                         </label>
                                     </div>
@@ -251,13 +251,13 @@
                                     <div class="col-xs-7">
                                         <div class="radio">
                                             <label>
-                                                @Html.RadioButton("SqlConnectionInfo", "sqlconnectioninfo_values", (Model.SqlConnectionInfo == "sqlconnectioninfo_values"), new { id = "sqlconnectioninfo_values" })
+                                                @Html.RadioButtonFor(m => m.SqlConnectionInfo, "sqlconnectioninfo_values", new { id = "sqlconnectioninfo_values" })
                                                 @ILS.GetResource("ConnectionStringValues")
                                             </label>
                                         </div>
                                         <div class="radio">
                                             <label>
-                                                @Html.RadioButton("SqlConnectionInfo", "sqlconnectioninfo_raw", (Model.SqlConnectionInfo == "sqlconnectioninfo_raw"), new { id = "sqlconnectioninfo_raw" })
+                                                @Html.RadioButtonFor(m => m.SqlConnectionInfo, "sqlconnectioninfo_raw", new { id = "sqlconnectioninfo_raw" })
                                                 @ILS.GetResource("RawConnectionString")
                                             </label>
                                         </div>
@@ -295,13 +295,13 @@
                                         <div class="col-xs-7">
                                             <div class="radio">
                                                 <label>
-                                                    @Html.RadioButton("SqlAuthenticationType", "sqlauthentication", (Model.SqlAuthenticationType == "sqlauthentication"), new { id = "sqlauthenticationtype_sql" })
+                                                    @Html.RadioButtonFor(m => m.SqlAuthenticationType, "sqlauthentication", new { id = "sqlauthenticationtype_sql" })
                                                     @ILS.GetResource("SqlAuthentication")
                                                 </label>
                                             </div>
                                             <div class="radio">
                                                 <label>
-                                                    @Html.RadioButton("SqlAuthenticationType", "windowsauthentication", (Model.SqlAuthenticationType == "windowsauthentication"), new { id = "sqlauthenticationtype_windows" })
+                                                    @Html.RadioButtonFor(m => m.SqlAuthenticationType, "windowsauthentication", new { id = "sqlauthenticationtype_windows" })
                                                     @ILS.GetResource("WindowsAuthentication")
                                                 </label>
                                             </div>

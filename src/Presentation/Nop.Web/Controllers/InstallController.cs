@@ -218,15 +218,50 @@ namespace Nop.Web.Controllers
         }
 
         [HttpPost]
-        public virtual ActionResult Index(InstallModel model)
+        public virtual ActionResult Index([Bind(Prefix = "")] InstallModel model)
         {
+            // DEBUG: Log raw form data so we can see what the server receives (writes to log file)
+            _logger.LogInformation("Install POST: Request Method={Method}, ContentType={ContentType}",
+                Request?.Method, Request?.ContentType);
+            if (Request?.Form != null)
+            {
+                foreach (string key in Request.Form.Keys)
+                {
+                    var value = Request.Form[key];
+                    _logger.LogInformation("Install POST Form[{Key}]={Value}", key, value.ToString());
+                }
+            }
+
             if (model == null)
                 model = new InstallModel();
             if (model.AvailableLanguages == null)
                 model.AvailableLanguages = new List<SelectListItem>();
 
-            _logger.LogInformation("Install Index POST received. DataProvider={DataProvider}, InstallSampleData={InstallSampleData}, SqlConnectionInfo={SqlConnectionInfo}",
-                model?.DataProvider, model?.InstallSampleData, model?.SqlConnectionInfo);
+            _logger.LogInformation("Install Index POST received. DataProvider={DataProvider}, InstallSampleData={InstallSampleData}, SqlConnectionInfo={SqlConnectionInfo}, SqlServerName={SqlServerName}, AdminEmail={AdminEmail}",
+                model?.DataProvider, model?.InstallSampleData, model?.SqlConnectionInfo, model?.SqlServerName, model?.AdminEmail);
+            _logger.LogInformation("Install POST ModelState: IsValid={IsValid}, ErrorCount={ErrorCount}",
+                ModelState?.IsValid, ModelState?.ErrorCount ?? 0);
+
+            // Fallback: if model binding left key fields null but form has them, bind from form (e.g. wrong prefix)
+            if (Request?.Form != null && string.IsNullOrEmpty(model?.DataProvider) && !string.IsNullOrEmpty(Request.Form["DataProvider"]))
+            {
+                _logger.LogInformation("Install POST: Binding from Request.Form (prefix fallback)");
+                model.DataProvider = Request.Form["DataProvider"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlConnectionInfo"])) model.SqlConnectionInfo = Request.Form["SqlConnectionInfo"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlAuthenticationType"])) model.SqlAuthenticationType = Request.Form["SqlAuthenticationType"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlServerName"])) model.SqlServerName = Request.Form["SqlServerName"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlDatabaseName"])) model.SqlDatabaseName = Request.Form["SqlDatabaseName"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["AdminEmail"])) model.AdminEmail = Request.Form["AdminEmail"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["AdminPassword"])) model.AdminPassword = Request.Form["AdminPassword"].ToString();
+                if (Request.Form.ContainsKey("InstallSampleData")) model.InstallSampleData = string.Equals(Request.Form["InstallSampleData"], "true", StringComparison.OrdinalIgnoreCase) || Request.Form["InstallSampleData"].ToString().Contains("true");
+                if (!string.IsNullOrEmpty(Request.Form["DatabaseConnectionString"])) model.DatabaseConnectionString = Request.Form["DatabaseConnectionString"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlServerUsername"])) model.SqlServerUsername = Request.Form["SqlServerUsername"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlServerPassword"])) model.SqlServerPassword = Request.Form["SqlServerPassword"].ToString();
+                if (Request.Form.ContainsKey("SqlServerCreateDatabase")) model.SqlServerCreateDatabase = string.Equals(Request.Form["SqlServerCreateDatabase"], "true", StringComparison.OrdinalIgnoreCase) || Request.Form["SqlServerCreateDatabase"].ToString().Contains("true");
+                if (Request.Form.ContainsKey("UseCustomCollation")) model.UseCustomCollation = string.Equals(Request.Form["UseCustomCollation"], "true", StringComparison.OrdinalIgnoreCase) || Request.Form["UseCustomCollation"].ToString().Contains("true");
+                if (!string.IsNullOrEmpty(Request.Form["Collation"])) model.Collation = Request.Form["Collation"].ToString();
+            }
+
             if (DataSettingsHelper.DatabaseIsInstalled())
             {
                 _logger.LogInformation("Database already installed; redirecting to HomePage");

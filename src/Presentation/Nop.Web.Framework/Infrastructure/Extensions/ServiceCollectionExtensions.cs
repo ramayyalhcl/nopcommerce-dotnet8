@@ -50,8 +50,17 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             });
 
             // Configure authentication (Cookie-based for nopCommerce)
+            // NopCookie: default scheme for middleware. NopAuthenticationScheme: used by CookieAuthenticationService (SignIn/SignOut/Authenticate).
             services.AddAuthentication("NopCookie")
                 .AddCookie("NopCookie", options =>
+                {
+                    options.LoginPath = "/login";
+                    options.LogoutPath = "/logout";
+                    options.AccessDeniedPath = "/";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+                    options.SlidingExpiration = true;
+                })
+                .AddCookie("NopAuthenticationScheme", options =>
                 {
                     options.LoginPath = "/login";
                     options.LogoutPath = "/logout";
