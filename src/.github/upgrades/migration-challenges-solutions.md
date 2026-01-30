@@ -340,4 +340,22 @@ await _httpContextAccessor.HttpContext.SignInAsync(new ClaimsPrincipal(identity)
 
 ---
 
-**Last Updated**: January 27, 2026
+## Install / Seed & EF Core (Runtime)
+
+### 1. Sequence contains more than one element
+**Problem**: `CodeFirstInstallationService.InstallSettings()` (and sample data) used `.Single()` for lookups (e.g. Language "English", Currency "USD"). Duplicate seed rows or multiple matches caused `InvalidOperationException: Sequence contains more than one element`.  
+**Solution**:
+- Replaced `.Table.Single(` with `.Table.First(` in `CodeFirstInstallationService.cs` so lookups tolerate duplicates.
+- Replaced `.SpecificationAttributeOptions.Single(` with `.SpecificationAttributeOptions.First(` for navigation collection lookups.
+- Install can proceed; first matching row is used.
+
+### 2. Legacy underscore column/table names (planned)
+**Problem**: Legacy Entity Framework (4.5.1) used **underscores** in DB column and table names (e.g. `customer_id`, `first_name`). **EF Core** does not support that naming by default (expects PascalCase or explicit mapping).  
+**Planned work**:
+- Update **seed-related EF entity mappings** so column/table names match the database (use `[Column("column_name")]` or `HasColumnName("column_name")` in Fluent API).
+- Update **stored procedures** used for seeding (in `App_Data/Install/` or similar) so result set column names align with EF Core entity properties (or map in code).
+- Ensure no reliance on legacy underscore names without explicit mapping.
+
+---
+
+**Last Updated**: January 29, 2026

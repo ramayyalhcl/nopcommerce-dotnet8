@@ -50,8 +50,17 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             });
 
             // Configure authentication (Cookie-based for nopCommerce)
+            // NopCookie: default scheme for middleware. NopAuthenticationScheme: used by CookieAuthenticationService (SignIn/SignOut/Authenticate).
             services.AddAuthentication("NopCookie")
                 .AddCookie("NopCookie", options =>
+                {
+                    options.LoginPath = "/login";
+                    options.LogoutPath = "/logout";
+                    options.AccessDeniedPath = "/";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+                    options.SlidingExpiration = true;
+                })
+                .AddCookie("NopAuthenticationScheme", options =>
                 {
                     options.LoginPath = "/login";
                     options.LogoutPath = "/logout";
@@ -71,6 +80,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             // For now, create a default configuration (IgnoreStartupTasks defaults to false)
             Console.WriteLine("[LOG] ConfigureApplicationServices: Creating NopConfig...");
             var nopConfig = new NopConfig();
+            EngineContext.SetDefaultConfig(nopConfig);
 
             // Register all nopCommerce services via DependencyRegistrar pattern
             // We need to create the typeFinder and engine instance first, but we can't create the engine yet

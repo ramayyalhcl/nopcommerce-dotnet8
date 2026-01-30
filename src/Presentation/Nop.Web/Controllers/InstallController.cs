@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Configuration;
@@ -14,9 +15,11 @@ using Nop.Core.Infrastructure;
 using Nop.Core.Plugins;
 using Nop.Services.Installation;
 using Nop.Services.Security;
+using Nop.Data;
 using Nop.Web.Framework.Security;
 using Nop.Web.Infrastructure.Installation;
 using Nop.Web.Models.Install;
+using Microsoft.EntityFrameworkCore;
 
 namespace Nop.Web.Controllers
 {
@@ -26,15 +29,17 @@ namespace Nop.Web.Controllers
 
         private readonly IInstallationLocalizationService _locService;
         private readonly NopConfig _config;
+        private readonly ILogger<InstallController> _logger;
 
         #endregion
 
         #region Ctor
 
-        public InstallController(IInstallationLocalizationService locService, NopConfig config)
+        public InstallController(IInstallationLocalizationService locService, NopConfig config, ILogger<InstallController> logger)
         {
             this._locService = locService;
             this._config = config;
+            this._logger = logger;
         }
 
         #endregion
@@ -158,6 +163,7 @@ namespace Nop.Web.Controllers
                 builder.Password = password;
             }
             builder.PersistSecurityInfo = false;
+            builder.Encrypt = false; // Unsecure mode for POC/dev
             if (this.UseMars)
             {
                 builder.MultipleActiveResultSets = true;
@@ -175,8 +181,12 @@ namespace Nop.Web.Controllers
 
         public virtual ActionResult Index()
         {
+            _logger.LogDebug("Install Index GET requested");
             if (DataSettingsHelper.DatabaseIsInstalled())
+            {
+                _logger.LogInformation("Database already installed; redirecting to HomePage");
                 return RedirectToRoute("HomePage");
+            }
 
             //set page timeout to 5 minutes
             // this.Server.ScriptTimeout = 300; - Server doesn't exist in ASP.NET Core (use middleware timeout)
@@ -211,10 +221,55 @@ namespace Nop.Web.Controllers
         }
 
         [HttpPost]
-        public virtual ActionResult Index(InstallModel model)
+        public virtual ActionResult Index([Bind(Prefix = "")] InstallModel model)
         {
+            // DEBUG: Log raw form data so we can see what the server receives (writes to log file)
+            _logger.LogInformation("Install POST: Request Method={Method}, ContentType={ContentType}",
+                Request?.Method, Request?.ContentType);
+            if (Request?.Form != null)
+            {
+                foreach (string key in Request.Form.Keys)
+                {
+                    var value = Request.Form[key];
+                    _logger.LogInformation("Install POST Form[{Key}]={Value}", key, value.ToString());
+                }
+            }
+
+            if (model == null)
+                model = new InstallModel();
+            if (model.AvailableLanguages == null)
+                model.AvailableLanguages = new List<SelectListItem>();
+
+            _logger.LogInformation("Install Index POST received. DataProvider={DataProvider}, InstallSampleData={InstallSampleData}, SqlConnectionInfo={SqlConnectionInfo}, SqlServerName={SqlServerName}, AdminEmail={AdminEmail}",
+                model?.DataProvider, model?.InstallSampleData, model?.SqlConnectionInfo, model?.SqlServerName, model?.AdminEmail);
+            _logger.LogInformation("Install POST ModelState: IsValid={IsValid}, ErrorCount={ErrorCount}",
+                ModelState?.IsValid, ModelState?.ErrorCount ?? 0);
+
+            // Fallback: if model binding left key fields null but form has them, bind from form (e.g. wrong prefix)
+            if (Request?.Form != null && string.IsNullOrEmpty(model?.DataProvider) && !string.IsNullOrEmpty(Request.Form["DataProvider"]))
+            {
+                _logger.LogInformation("Install POST: Binding from Request.Form (prefix fallback)");
+                model.DataProvider = Request.Form["DataProvider"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlConnectionInfo"])) model.SqlConnectionInfo = Request.Form["SqlConnectionInfo"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlAuthenticationType"])) model.SqlAuthenticationType = Request.Form["SqlAuthenticationType"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlServerName"])) model.SqlServerName = Request.Form["SqlServerName"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlDatabaseName"])) model.SqlDatabaseName = Request.Form["SqlDatabaseName"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["AdminEmail"])) model.AdminEmail = Request.Form["AdminEmail"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["AdminPassword"])) model.AdminPassword = Request.Form["AdminPassword"].ToString();
+                if (Request.Form.ContainsKey("InstallSampleData")) model.InstallSampleData = string.Equals(Request.Form["InstallSampleData"], "true", StringComparison.OrdinalIgnoreCase) || Request.Form["InstallSampleData"].ToString().Contains("true");
+                if (!string.IsNullOrEmpty(Request.Form["DatabaseConnectionString"])) model.DatabaseConnectionString = Request.Form["DatabaseConnectionString"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlServerUsername"])) model.SqlServerUsername = Request.Form["SqlServerUsername"].ToString();
+                if (!string.IsNullOrEmpty(Request.Form["SqlServerPassword"])) model.SqlServerPassword = Request.Form["SqlServerPassword"].ToString();
+                if (Request.Form.ContainsKey("SqlServerCreateDatabase")) model.SqlServerCreateDatabase = string.Equals(Request.Form["SqlServerCreateDatabase"], "true", StringComparison.OrdinalIgnoreCase) || Request.Form["SqlServerCreateDatabase"].ToString().Contains("true");
+                if (Request.Form.ContainsKey("UseCustomCollation")) model.UseCustomCollation = string.Equals(Request.Form["UseCustomCollation"], "true", StringComparison.OrdinalIgnoreCase) || Request.Form["UseCustomCollation"].ToString().Contains("true");
+                if (!string.IsNullOrEmpty(Request.Form["Collation"])) model.Collation = Request.Form["Collation"].ToString();
+            }
+
             if (DataSettingsHelper.DatabaseIsInstalled())
+            {
+                _logger.LogInformation("Database already installed; redirecting to HomePage");
                 return RedirectToRoute("HomePage");
+            }
 
             //set page timeout to 5 minutes
             // this.Server.ScriptTimeout = 300; - Server doesn't exist in ASP.NET Core (use middleware timeout)
@@ -237,10 +292,13 @@ namespace Nop.Web.Controllers
             model.DisableSqlCompact = _config.UseFastInstallationService;
             model.DisableSampleDataOption = _config.DisableSampleDataDuringInstallation;
 
+            if (string.IsNullOrEmpty(model.DataProvider))
+                ModelState.AddModelError("", _locService.GetResource("DataProviderRequired"));
+
             //SQL Server
-            if (model.DataProvider.Equals("sqlserver", StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(model.DataProvider, "sqlserver", StringComparison.InvariantCultureIgnoreCase))
             {
-                if (model.SqlConnectionInfo.Equals("sqlconnectioninfo_raw", StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(model.SqlConnectionInfo, "sqlconnectioninfo_raw", StringComparison.InvariantCultureIgnoreCase))
                 {
                     //raw connection string
                     if (string.IsNullOrEmpty(model.DatabaseConnectionString))
@@ -265,7 +323,7 @@ namespace Nop.Web.Controllers
                         ModelState.AddModelError("", _locService.GetResource("DatabaseNameRequired"));
 
                     //authentication type
-                    if (model.SqlAuthenticationType.Equals("sqlauthentication", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(model.SqlAuthenticationType, "sqlauthentication", StringComparison.InvariantCultureIgnoreCase))
                     {
                         //SQL authentication
                         if (string.IsNullOrEmpty(model.SqlServerUsername))
@@ -300,12 +358,13 @@ namespace Nop.Web.Controllers
                 var settingsManager = new DataSettingsManager();
                 try
                 {
+                    _logger.LogInformation("Install validation passed; starting database and data setup");
                     string connectionString;
-                    if (model.DataProvider.Equals("sqlserver", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(model.DataProvider, "sqlserver", StringComparison.InvariantCultureIgnoreCase))
                     {
                         //SQL Server
 
-                        if (model.SqlConnectionInfo.Equals("sqlconnectioninfo_raw", StringComparison.InvariantCultureIgnoreCase))
+                        if (string.Equals(model.SqlConnectionInfo, "sqlconnectioninfo_raw", StringComparison.InvariantCultureIgnoreCase))
                         {
                             //raw connection string
 
@@ -367,20 +426,29 @@ namespace Nop.Web.Controllers
                         DataConnectionString = connectionString
                     };
                     settingsManager.SaveSettings(settings);
+                    _logger.LogInformation("Data settings saved. DataProvider={DataProvider}", dataProvider);
 
                     //init data provider
                     var dataProviderInstance = EngineContext.Current.Resolve<BaseDataProviderManager>().LoadDataProvider();
                     dataProviderInstance.InitDatabase();
+                    _logger.LogInformation("Database initialized");
 
+                    // Ensure schema exists (EF Core: InitDatabase is no-op; create tables from model)
+                    var dbContext = EngineContext.Current.Resolve<NopObjectContext>();
+                    dbContext.Database.EnsureCreated();
+                    _logger.LogInformation("Database schema ensured (EnsureCreated).");
 
                     //now resolve installation service
                     var installationService = EngineContext.Current.Resolve<IInstallationService>();
+                    _logger.LogInformation("Installing seed data. InstallSampleData={InstallSampleData}", model.InstallSampleData);
                     installationService.InstallData(model.AdminEmail, model.AdminPassword, model.InstallSampleData);
 
                     //reset cache
                     DataSettingsHelper.ResetCache();
+                    _logger.LogInformation("Cache reset; installing plugins");
 
                     //install plugins
+                    PluginManager.Initialize(); // Ensure ReferencedPlugins is loaded before accessing
                     PluginManager.MarkAllPluginsAsUninstalled();
                     var pluginFinder = EngineContext.Current.Resolve<IPluginFinder>();
                     var plugins = pluginFinder.GetPlugins<IPlugin>(LoadPluginsMode.All)
@@ -411,14 +479,13 @@ namespace Nop.Web.Controllers
                         EngineContext.Current.Resolve<IPermissionService>().InstallPermissions(provider);
                     }
 
-                    //restart application
-                    webHelper.RestartAppDomain();
-
-                    //Redirect to home page
+                    // Redirect to home page (skip RestartAppDomain so app stays running and user reaches landing page)
+                    _logger.LogInformation("Install completed successfully; redirecting to HomePage");
                     return RedirectToRoute("HomePage");
                 }
                 catch (Exception exception)
                 {
+                    _logger.LogError(exception, "Install failed. DataProvider={DataProvider}, Message={Message}", model?.DataProvider, exception.Message);
                     //reset cache
                     DataSettingsHelper.ResetCache();
 
@@ -435,11 +502,16 @@ namespace Nop.Web.Controllers
                     ModelState.AddModelError("", string.Format(_locService.GetResource("SetupFailed"), exception.Message));
                 }
             }
+            else
+            {
+                _logger.LogWarning("Install POST validation failed. ErrorCount={ErrorCount}", ModelState.ErrorCount);
+            }
             return View(model);
         }
 
         public virtual ActionResult ChangeLanguage(string language)
         {
+            _logger.LogDebug("Install ChangeLanguage. Language={Language}", language);
             if (DataSettingsHelper.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
@@ -452,6 +524,7 @@ namespace Nop.Web.Controllers
         [HttpPost]
         public virtual ActionResult RestartInstall()
         {
+            _logger.LogInformation("Install RestartInstall requested");
             if (DataSettingsHelper.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 

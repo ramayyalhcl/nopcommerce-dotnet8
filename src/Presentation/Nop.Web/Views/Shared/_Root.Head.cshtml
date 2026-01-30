@@ -1,4 +1,4 @@
-﻿@using Nop.Core.Domain;
+@using Nop.Core.Domain;
 @using Nop.Core.Domain.Common;
 @using Nop.Core.Domain.Seo
 @using Nop.Core.Infrastructure;
@@ -32,7 +32,7 @@
     }
 }
 <!DOCTYPE html>
-<html@(this.ShouldUseRtlTheme() ? Html.Raw(" dir=\"rtl\"") : null) @Html.NopPageCssClasses()>
+<html @Html.NopPageCssClasses()>
 <head>
     <title>@Html.NopTitle()</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
@@ -51,10 +51,11 @@
     @Html.Action("RssHeaderLink", "Blog")
     @*Favicon - upload favicon.ico file to the root directory*@
     @Html.Action("Favicon", "Common")
-    @if (displayMiniProfiler)
+    @* MiniProfiler commented out for POC - package not referenced *@
+    @*@if (displayMiniProfiler)
     {
         @StackExchange.Profiling.MiniProfiler.RenderIncludes()
-    }
+    }*@
     <!--Powered by nopCommerce - http://www.nopCommerce.com-->
 </head>
 <body>

@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Suppress NuGet compatibility warnings so dotnet watch / build does not fail.
+         NU1701: Package was restored for .NETFramework instead of project target (e.g. ImageResizer, iTextSharp).
+         NU1603: Dependency version was resolved to a different version (e.g. System.Linq.Dynamic.Core).
+         NETSDK1086: FrameworkReference for Microsoft.AspNetCore.App is implicit in SDK. -->
+    <NoWarn>$(NoWarn);NU1701;NU1603;NETSDK1086</NoWarn>
+  </PropertyGroup>
+</Project>

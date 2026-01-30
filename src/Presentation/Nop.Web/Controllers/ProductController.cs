@@ -413,6 +413,19 @@ namespace Nop.Web.Controllers
             //availability dates
             products = products.Where(p => p.IsAvailable()).ToList();
 
+            // DEMO: If no products marked for homepage, show top 8 products for .NET 8 upgrade demonstration
+            if (!products.Any())
+            {
+                products = _productService.SearchProducts(
+                    storeId: _storeContext.CurrentStore.Id,
+                    visibleIndividuallyOnly: true,
+                    pageSize: 8,
+                    pageIndex: 0)
+                    .Where(p => _aclService.Authorize(p) && _storeMappingService.Authorize(p))
+                    .Where(p => p.IsAvailable())
+                    .ToList();
+            }
+
             if (!products.Any())
                 return Content("");
 

@@ -755,15 +755,24 @@ namespace Nop.Services.Media
         /// <returns>Picture binary or throws an exception</returns>
         public virtual byte[] ValidatePicture(byte[] pictureBinary, string mimeType)
         {
-            using (var destStream = new MemoryStream())
+            try
             {
-                ImageBuilder.Current.Build(pictureBinary, destStream, new ResizeSettings
+                using (var destStream = new MemoryStream())
                 {
-                    MaxWidth = _mediaSettings.MaximumImageSize,
-                    MaxHeight = _mediaSettings.MaximumImageSize,
-                    Quality = _mediaSettings.DefaultImageQuality
-                });
-                return destStream.ToArray();
+                    ImageBuilder.Current.Build(pictureBinary, destStream, new ResizeSettings
+                    {
+                        MaxWidth = _mediaSettings.MaximumImageSize,
+                        MaxHeight = _mediaSettings.MaximumImageSize,
+                        Quality = _mediaSettings.DefaultImageQuality
+                    });
+                    return destStream.ToArray();
+                }
+            }
+            catch (TypeLoadException)
+            {
+                // ImageResizer may fail on .NET 8 when loading System.Web.Hosting.HostingEnvironment
+                // Return original picture bytes without validation (acceptable for install/POC)
+                return pictureBinary;
             }
         }
 

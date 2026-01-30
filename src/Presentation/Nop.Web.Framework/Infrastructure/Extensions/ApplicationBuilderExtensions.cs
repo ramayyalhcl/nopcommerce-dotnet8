@@ -3,6 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.FileProviders;
@@ -30,13 +31,11 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         /// <param name="application">Builder for configuring an application's request pipeline</param>
         public static void ConfigureRequestPipeline(this IApplicationBuilder application)
         {
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Starting pipeline configuration...");
-            
             var serviceProvider = application.ApplicationServices;
-            
+            var pipelineLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Nop.Pipeline");
+            pipelineLogger.LogDebug("Starting pipeline configuration");
+
             // Initialize nopCommerce Engine
-            // Get the Autofac container from the service provider
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Getting Autofac root container...");
             var autofacRoot = serviceProvider.GetAutofacRoot();
             IContainer autofacContainer;
             if (autofacRoot is IContainer container)
@@ -48,24 +47,15 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                 throw new InvalidOperationException("Autofac root scope is not an IContainer. Cannot initialize nopCommerce engine.");
             }
 
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Creating ContainerManager...");
             var containerManager = new ContainerManager(autofacContainer);
-
-            // Create a custom engine adapter that uses the ASP.NET Core Autofac container
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Creating AspNetCoreNopEngine...");
             var engine = new AspNetCoreNopEngine(containerManager);
             EngineContext.Replace(engine);
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: EngineContext replaced.");
+            pipelineLogger.LogDebug("EngineContext replaced");
 
-            // Load NopConfig (should match what was registered in ConfigureApplicationServices)
             var nopConfig = new NopConfig();
-
-            // Initialize the engine (registers mapper configurations)
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Initializing engine...");
             engine.Initialize(nopConfig);
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Engine initialized.");
+            pipelineLogger.LogInformation("Engine initialized");
 
-            // Run startup tasks if not ignored
             if (!nopConfig.IgnoreStartupTasks)
             {
                 var typeFinder = new WebAppTypeFinder();
@@ -83,22 +73,22 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                     }
                     catch (Exception ex)
                     {
-                        // Log error but continue
-                        Console.WriteLine($"Error executing startup task {startUpTask.GetType().Name}: {ex.Message}");
+                        pipelineLogger.LogWarning(ex, "Startup task failed. Task={Task}", startUpTask.GetType().Name);
                     }
                 }
             }
 
             // Redirect to installation page if database is not installed
             // This must be early in the pipeline, before any database-dependent services are resolved
+            var installRedirectLogger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Nop.InstallRedirect");
             application.Use(async (context, next) =>
             {
-                // Skip installation check for /install routes
                 var path = context.Request.Path.Value?.ToLowerInvariant() ?? "";
                 if (!path.StartsWith("/install") && !path.StartsWith("/content") && !path.StartsWith("/scripts") && !path.StartsWith("/images"))
                 {
                     if (!Nop.Core.Data.DataSettingsHelper.DatabaseIsInstalled())
                     {
+                        installRedirectLogger.LogDebug("Redirecting to install. Path={Path}, TraceId={TraceId}", path, context.TraceIdentifier);
                         context.Response.Redirect("/install");
                         return;
                     }
@@ -184,52 +174,49 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             application.UseAuthorization();
 
             // Register endpoints (routes) using UseEndpoints
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Configuring endpoints...");
             application.UseEndpoints(endpoints =>
             {
-                // Register nopCommerce routes using RoutePublisher
-                // RoutePublisher is registered in Autofac, so we need to resolve it from EngineContext
-                Console.WriteLine("[LOG] ConfigureRequestPipeline: Attempting to resolve IRoutePublisher...");
+                var routeLogger = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Nop.RouteRegistration");
+                routeLogger.LogDebug("Configuring endpoints");
                 try
                 {
                     var routePublisher = EngineContext.Current.Resolve<IRoutePublisher>();
-                    Console.WriteLine($"[LOG] ConfigureRequestPipeline: IRoutePublisher resolved: {routePublisher.GetType().Name}");
-                    Console.WriteLine("[LOG] ConfigureRequestPipeline: Registering routes via RoutePublisher...");
+                    routeLogger.LogInformation("IRoutePublisher resolved. Type={Type}", routePublisher.GetType().Name);
                     routePublisher.RegisterRoutes(endpoints);
-                    Console.WriteLine("[LOG] ConfigureRequestPipeline: Routes registered successfully.");
+                    routeLogger.LogInformation("Routes registered via RoutePublisher");
                 }
                 catch (Exception ex)
                 {
-                    // If route registration fails, try manual creation as fallback
-                    Console.WriteLine($"[LOG] ERROR: Could not resolve IRoutePublisher from container: {ex.Message}");
-                    Console.WriteLine($"[LOG] ERROR: Stack trace: {ex.StackTrace}");
+                    routeLogger.LogWarning(ex, "Could not resolve IRoutePublisher. Message={Message}", ex.Message);
                     try
                     {
-                        Console.WriteLine("[LOG] ConfigureRequestPipeline: Attempting fallback route registration...");
                         var fallbackTypeFinder = EngineContext.Current.Resolve<ITypeFinder>();
                         var routePublisherManual = new RoutePublisher(fallbackTypeFinder);
                         routePublisherManual.RegisterRoutes(endpoints);
-                        Console.WriteLine("[LOG] ConfigureRequestPipeline: Fallback route registration succeeded.");
+                        routeLogger.LogInformation("Fallback route registration succeeded");
                     }
                     catch (Exception ex2)
                     {
-                        // If all else fails, register default route
-                        Console.WriteLine($"[LOG] ERROR: Fallback route registration failed: {ex2.Message}");
-                        Console.WriteLine($"[LOG] ERROR: Stack trace: {ex2.StackTrace}");
-                        Console.WriteLine("[LOG] ConfigureRequestPipeline: Registering default route only...");
+                        routeLogger.LogWarning(ex2, "Fallback route registration failed. Message={Message}", ex2.Message);
+                        routeLogger.LogInformation("Registering fallback routes (HomePage, Install, default)");
+                        endpoints.MapControllerRoute(
+                            name: "HomePage",
+                            pattern: "",
+                            defaults: new { controller = "Home", action = "Index" });
+                        endpoints.MapControllerRoute(
+                            name: "Install",
+                            pattern: "Install/{action=Index}/{id?}",
+                            defaults: new { controller = "Install", action = "Index" });
                         endpoints.MapControllerRoute(
                             name: "default",
                             pattern: "{controller=Home}/{action=Index}/{id?}");
-                        Console.WriteLine("[LOG] ConfigureRequestPipeline: Default route registered.");
+                        routeLogger.LogInformation("Fallback routes registered");
                     }
                 }
 
-                // Map all controllers (convention-based routing)
-                Console.WriteLine("[LOG] ConfigureRequestPipeline: Mapping all controllers...");
                 endpoints.MapControllers();
-                Console.WriteLine("[LOG] ConfigureRequestPipeline: Endpoint configuration complete.");
+                routeLogger.LogDebug("Endpoint configuration complete");
             });
-            Console.WriteLine("[LOG] ConfigureRequestPipeline: Pipeline configuration complete.");
         }
     }
 
