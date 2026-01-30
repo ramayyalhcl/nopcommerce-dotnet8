@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 // using System.Web.Mvc.Html; - removed for .NET 8
 using Nop.Core;
 using Nop.Core.Caching;
@@ -398,8 +399,13 @@ namespace Nop.Web.Extensions
                 
                 return HtmlString.Empty;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // .NET 8.0: Added detailed logging to diagnose Html.Action failures
+                var logger = EngineContext.Current.Resolve<Microsoft.Extensions.Logging.ILogger<object>>();
+                logger.LogError(ex, "Html.Action failed for {ActionName}/{ControllerName}: {Message}", 
+                    actionName, controllerName, ex.Message);
+                
                 // Return empty on error - this allows the page to continue loading
                 return HtmlString.Empty;
             }
