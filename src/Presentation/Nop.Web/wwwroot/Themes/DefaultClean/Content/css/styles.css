@@ -64,7 +64,7 @@ script {
 body {
     max-width: 100%;
 	overflow-x: hidden;
-	background-color: #fff;
+	background-color: #f5f8fa; /* Light grayish-blue background for e-commerce feel */
 	font: normal 14px Arial, Helvetica, sans-serif;
     color: #777;
 }
