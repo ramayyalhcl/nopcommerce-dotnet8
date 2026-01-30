@@ -50,13 +50,23 @@ namespace Nop.Web.Controllers
         {
             // .NET 8.0: Get first product picture URL (300px size for homepage)
             var productPictures = product.ProductPictures?.OrderBy(x => x.DisplayOrder).ToList();
+            
+            _logger.LogDebug("Product '{ProductName}' (ID: {ProductId}) has {PictureCount} pictures", 
+                product.Name, product.Id, productPictures?.Count ?? 0);
+            
             if (productPictures != null && productPictures.Any())
             {
                 var firstPicture = productPictures.First();
-                return _pictureService.GetPictureUrl(firstPicture.PictureId, targetSize: 300);
+                _logger.LogDebug("  -> Using PictureId: {PictureId}, DisplayOrder: {DisplayOrder}", 
+                    firstPicture.PictureId, firstPicture.DisplayOrder);
+                var url = _pictureService.GetPictureUrl(firstPicture.PictureId, targetSize: 300);
+                _logger.LogDebug("  -> Generated URL: {Url}", url);
+                return url;
             }
             
             // Return default picture if product has no pictures
+            _logger.LogWarning("Product '{ProductName}' (ID: {ProductId}) has NO pictures - using default", 
+                product.Name, product.Id);
             return _pictureService.GetDefaultPictureUrl(targetSize: 300);
         }
     }

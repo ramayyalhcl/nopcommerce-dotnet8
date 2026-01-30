@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.EntityFrameworkCore; // .NET 8.0: For Include() extension method
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
@@ -215,13 +216,16 @@ namespace Nop.Services.Catalog
         /// <returns>Products</returns>
         public virtual IList<Product> GetAllProductsDisplayedOnHomePage()
         {
+            // .NET 8.0: Include ProductPictures navigation property for EF Core
             var query = from p in _productRepository.Table
                         orderby p.DisplayOrder, p.Id
                         where p.Published &&
                         !p.Deleted &&
                         p.ShowOnHomePage
                         select p;
-            var products = query.ToList();
+            var products = query
+                .Include(p => p.ProductPictures)
+                .ToList();
             return products;
         }
         
