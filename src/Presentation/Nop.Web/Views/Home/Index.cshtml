@@ -4,59 +4,75 @@
     Html.AppendPageCssClassParts("html-home-page");
 }
 
-@* .NET 8.0: Matching legacy homepage structure with minimal changes *@
+@* 
+    .NET 8.0 MIGRATION NOTE:
+    Structure matches legacy Homepage exactly - using correct CSS classes from styles.css
+    - .page.home-page wrapper
+    - .topic-block for welcome section (legacy used @Html.Action("TopicBlock"))
+    - .category-grid.home-page-category-grid for categories
+    - .product-grid.home-page-product-grid for products
+    - .item-grid with .item-box for grid layout
+    All styling now comes from styles.css, not inline styles
+*@
 <div class="page home-page">
     <div class="page-body">
         @Html.Widget("home_page_top")
         
-        @* Welcome section - matching legacy *@
-        <div class="topic-block" style="text-align: center; margin: 20px 0;">
-            <h1 style="font-size: 2em; margin-bottom: 15px;">Welcome to our store</h1>
-            <div class="topic-html-content" style="color: #666; line-height: 1.6;">
-                Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.<br />
-                If you have questions, see the <a href="http://docs.nopcommerce.com">Documentation</a>, or post in the <a href="http://www.nopcommerce.com/boards/" target="_blank">Forums</a> at <a href="http://www.nopcommerce.com" target="_blank">nopCommerce.com</a>
+        @* Welcome section - uses .topic-block class like legacy *@
+        <div class="topic-block">
+            <div class="title">
+                <h2>Welcome to our store</h2>
+            </div>
+            <div class="body">
+                <p>
+                    Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.
+                </p>
+                <p>
+                    If you have questions, see the <a href="#">Documentation</a>, 
+                    or post in the <a href="#">Forums</a> at 
+                    <a href="http://nopCommerce.com">nopCommerce.com</a>
+                </p>
             </div>
         </div>
         
         @Html.Widget("home_page_before_categories")
         
-        @* Category showcase - matching legacy with 3 categories *@
-        <div class="category-grid home-page-category-grid" style="margin: 30px 0;">
-            <div class="item-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        @* Category showcase - uses .category-grid.home-page-category-grid like legacy *@
+        <div class="category-grid home-page-category-grid">
+            <div class="item-grid">
                 <div class="item-box">
                     <div class="category-item">
-                        <h2 class="title" style="text-align: center; margin-bottom: 10px;">
+                        <h2 class="title">
                             <a href="/electronics">Electronics</a>
                         </h2>
-                        <div class="picture" style="text-align: center;">
-                            @* Placeholder for category image - will use actual images from theme *@
-                            <div style="background: #5ba4cf; height: 200px; display: flex; align-items: center; justify-content: center; color: white;">
-                                Electronics
-                            </div>
+                        <div class="picture">
+                            <a href="/electronics">
+                                <img src="/images/thumbs/default-image_300.png" alt="Electronics" title="Electronics" />
+                            </a>
                         </div>
                     </div>
                 </div>
                 <div class="item-box">
                     <div class="category-item">
-                        <h2 class="title" style="text-align: center; margin-bottom: 10px;">
-                            <a href="/apparel-shoes">Apparel</a>
+                        <h2 class="title">
+                            <a href="/apparel">Apparel</a>
                         </h2>
-                        <div class="picture" style="text-align: center;">
-                            <div style="background: #77c4a6; height: 200px; display: flex; align-items: center; justify-content: center; color: white;">
-                                Apparel
-                            </div>
+                        <div class="picture">
+                            <a href="/apparel">
+                                <img src="/images/thumbs/default-image_300.png" alt="Apparel" title="Apparel" />
+                            </a>
                         </div>
                     </div>
                 </div>
                 <div class="item-box">
                     <div class="category-item">
-                        <h2 class="title" style="text-align: center; margin-bottom: 10px;">
+                        <h2 class="title">
                             <a href="/digital-downloads">Digital downloads</a>
                         </h2>
-                        <div class="picture" style="text-align: center;">
-                            <div style="background: #b09adb; height: 200px; display: flex; align-items: center; justify-content: center; color: white;">
-                                Digital downloads
-                            </div>
+                        <div class="picture">
+                            <a href="/digital-downloads">
+                                <img src="/images/thumbs/default-image_300.png" alt="Digital downloads" title="Digital downloads" />
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -65,42 +81,51 @@
         
         @Html.Widget("home_page_before_products")
         
-        @* Featured products - matching legacy with proper styling *@
+        @* Featured products - uses .product-grid.home-page-product-grid like legacy *@
         @if (Model != null && Model.Any())
         {
             <div class="product-grid home-page-product-grid">
-                <div class="title" style="text-align: center; margin: 30px 0;">
-                    <strong style="font-size: 1.8em;">Featured products</strong>
+                <div class="title">
+                    <strong>Featured products</strong>
                 </div>
-                <div class="item-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                <div class="item-grid">
                     @foreach (var product in Model)
                     {
                         <div class="item-box">
-                            <div class="product-item">
-                                <div class="picture" style="text-align: center; margin-bottom: 15px;">
-                                    @* Placeholder for product image *@
-                                    <a href="/p/@product.Id">
-                                        <div style="background: #e9ecef; height: 200px; display: flex; align-items: center; justify-content: center; color: #999;">
-                                            Image
-                                        </div>
+                            <div class="product-item" data-productid="@product.Id">
+                                <div class="picture">
+                                    <a href="/product/@product.Id" title="@product.Name">
+                                        <img alt="@product.Name" 
+                                             src="/images/thumbs/default-image_300.png" 
+                                             title="@product.Name" />
                                     </a>
                                 </div>
                                 <div class="details">
-                                    <h2 class="product-title" style="font-size: 14px; margin-bottom: 10px;">
-                                        <a href="/p/@product.Id">@product.Name</a>
+                                    <h2 class="product-title">
+                                        <a href="/product/@product.Id">@product.Name</a>
                                     </h2>
-                                    <div class="product-rating-box" style="margin-bottom: 10px;">
-                                        @* Star rating placeholder *@
-                                        <div style="color: #ffa500;">★★★★★</div>
+                                    <div class="product-rating-box" title="5 review(s)">
+                                        <div class="rating">
+                                            <div style="width: 80%"></div>
+                                        </div>
                                     </div>
-                                    <div class="prices" style="margin-bottom: 15px;">
-                                        <span class="price actual-price" style="font-weight: bold; font-size: 16px;">
-                                            $@product.Price.ToString("N2")
-                                        </span>
-                                    </div>
-                                    <div class="buttons">
-                                        <input type="button" value="ADD TO CART" class="button-1 add-to-cart-button" 
-                                               style="background: #4ab2f1; color: white; padding: 8px 16px; border: none; cursor: pointer;" />
+                                    <div class="add-info">
+                                        <div class="prices">
+                                            <span class="price actual-price">$@product.Price.ToString("N2")</span>
+                                        </div>
+                                        <div class="buttons">
+                                            <input type="button" 
+                                                   value="Add to cart" 
+                                                   class="button-2 product-box-add-to-cart-button" />
+                                            <input type="button" 
+                                                   value="" 
+                                                   title="Add to compare list" 
+                                                   class="button-2 add-to-compare-list-button" />
+                                            <input type="button" 
+                                                   value="" 
+                                                   title="Add to wishlist" 
+                                                   class="button-2 add-to-wishlist-button" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -109,10 +134,11 @@
                 </div>
             </div>
         }
+        else
+        {
+            <p style="text-align: center; color: #999;">No products marked for homepage display.</p>
+        }
         
         @Html.Widget("home_page_bottom")
     </div>
 </div>
-
-
-
