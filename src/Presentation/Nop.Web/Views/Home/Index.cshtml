@@ -37,47 +37,35 @@
         
         @Html.Widget("home_page_before_categories")
         
-        @* Category showcase - uses .category-grid.home-page-category-grid like legacy *@
-        <div class="category-grid home-page-category-grid">
-            <div class="item-grid">
-                <div class="item-box">
-                    <div class="category-item">
-                        <h2 class="title">
-                            <a href="/electronics">Electronics</a>
-                        </h2>
-                        <div class="picture">
-                            <a href="/electronics">
-                                <img src="/content/images/thumbs/category-electronics-300.png" alt="Electronics" title="Electronics" />
-                            </a>
+        @* .NET 8.0: Dynamic category showcase from database *@
+        @{
+            var categories = ViewBag.Categories as IList<Nop.Core.Domain.Catalog.Category>;
+            var categoryPictureUrls = ViewBag.CategoryPictureUrls as Dictionary<int, string>;
+        }
+        @if (categories != null && categories.Any())
+        {
+            <div class="category-grid home-page-category-grid">
+                <div class="item-grid">
+                    @foreach (var category in categories)
+                    {
+                        var pictureUrl = categoryPictureUrls?[category.Id] ?? "/content/images/thumbs/default-image_300.png";
+                        
+                        <div class="item-box">
+                            <div class="category-item">
+                                <h2 class="title">
+                                    <a href="/category/@category.Id">@category.Name</a>
+                                </h2>
+                                <div class="picture">
+                                    <a href="/category/@category.Id">
+                                        <img src="@pictureUrl" alt="@category.Name" title="@category.Name" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="item-box">
-                    <div class="category-item">
-                        <h2 class="title">
-                            <a href="/apparel">Apparel</a>
-                        </h2>
-                        <div class="picture">
-                            <a href="/apparel">
-                                <img src="/content/images/thumbs/category-apparel-300.png" alt="Apparel" title="Apparel" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="item-box">
-                    <div class="category-item">
-                        <h2 class="title">
-                            <a href="/digital-downloads">Digital downloads</a>
-                        </h2>
-                        <div class="picture">
-                            <a href="/digital-downloads">
-                                <img src="/content/images/thumbs/category-digital-300.png" alt="Digital downloads" title="Digital downloads" />
-                            </a>
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
-        </div>
+        }
         
         @Html.Widget("home_page_before_products")
         
