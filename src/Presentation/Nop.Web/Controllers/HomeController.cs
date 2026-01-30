@@ -33,16 +33,17 @@ namespace Nop.Web.Controllers
             
             var products = _productService.GetAllProductsDisplayedOnHomePage();
             
-            // Create view model with product and picture URL
-            var model = products.Select(p => new
+            // Store picture URLs in ViewBag for easy access in view
+            var pictureUrls = new Dictionary<int, string>();
+            foreach (var product in products)
             {
-                Product = p,
-                PictureUrl = GetProductPictureUrl(p)
-            }).ToList();
+                pictureUrls[product.Id] = GetProductPictureUrl(product);
+            }
+            ViewBag.PictureUrls = pictureUrls;
             
             _logger.LogInformation("HomeController.Index: Fetched {Count} products for homepage", products?.Count ?? 0);
             
-            return View(model);
+            return View(products);
         }
 
         private string GetProductPictureUrl(Nop.Core.Domain.Catalog.Product product)

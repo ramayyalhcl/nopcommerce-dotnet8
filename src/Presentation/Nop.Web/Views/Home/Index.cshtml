@@ -1,5 +1,4 @@
-@* .NET 8.0: Model is now anonymous type with Product and PictureUrl *@
-@model dynamic
+@model IList<Nop.Core.Domain.Catalog.Product>
 @{
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
     Html.AppendPageCssClassParts("html-home-page");
@@ -83,17 +82,18 @@
         @Html.Widget("home_page_before_products")
         
         @* Featured products - uses .product-grid.home-page-product-grid like legacy *@
-        @if (Model != null && Model.Count > 0)
+        @if (Model != null && Model.Any())
         {
+            var pictureUrls = ViewBag.PictureUrls as Dictionary<int, string>;
+            
             <div class="product-grid home-page-product-grid">
                 <div class="title">
                     <strong>Featured products</strong>
                 </div>
                 <div class="item-grid">
-                    @foreach (var item in Model)
+                    @foreach (var product in Model)
                     {
-                        var product = item.Product;
-                        var pictureUrl = item.PictureUrl;
+                        var pictureUrl = pictureUrls?[product.Id] ?? "/images/thumbs/default-image_300.png";
                         
                         <div class="item-box">
                             <div class="product-item" data-productid="@product.Id">
