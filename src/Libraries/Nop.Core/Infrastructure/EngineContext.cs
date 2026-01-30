@@ -1,4 +1,4 @@
-﻿using System.Configuration;
+using System.Configuration;
 using System.Runtime.CompilerServices;
 using Nop.Core.Configuration;
 
@@ -9,6 +9,17 @@ namespace Nop.Core.Infrastructure
     /// </summary>
     public class EngineContext
     {
+        private static NopConfig _defaultConfig;
+
+        /// <summary>
+        /// Sets the config to use when initializing the engine (e.g. from ASP.NET Core host).
+        /// Avoids ConfigurationManager.GetSection which can load System.Web types on .NET 8.
+        /// </summary>
+        public static void SetDefaultConfig(NopConfig config)
+        {
+            _defaultConfig = config;
+        }
+
         #region Methods
 
         /// <summary>
@@ -22,7 +33,7 @@ namespace Nop.Core.Infrastructure
             {
                 Singleton<IEngine>.Instance = new NopEngine();
 
-                var config = ConfigurationManager.GetSection("NopConfig") as NopConfig;
+                var config = _defaultConfig ?? (ConfigurationManager.GetSection("NopConfig") as NopConfig);
                 Singleton<IEngine>.Instance.Initialize(config);
             }
             return Singleton<IEngine>.Instance;

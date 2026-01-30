@@ -319,8 +319,7 @@ namespace Nop.Web.Extensions
 
         /// <summary>
         /// Render a controller action as a partial view with route values
-        /// Note: This is a simplified implementation that renders partial views directly.
-        /// For full functionality, consider converting to ViewComponents.
+        /// Note: This implementation invokes the controller action directly.
         /// </summary>
         /// <typeparam name="TModel">Model type</typeparam>
         /// <param name="html">HTML helper</param>
@@ -335,29 +334,69 @@ namespace Nop.Web.Extensions
 
             try
             {
-                // Extract model from route values if present
-                object model = null;
+                var httpContext = html.ViewContext.HttpContext;
+                var serviceProvider = httpContext.RequestServices;
+                
+                // Get controller instance from DI
+                var controllerType = Type.GetType($"Nop.Web.Controllers.{controllerName}Controller, Nop.Web");
+                if (controllerType == null)
+                {
+                    // Try without Nop.Web prefix for external controllers
+                    var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                    foreach (var assembly in assemblies)
+                    {
+                        controllerType = assembly.GetType($"Nop.Web.Controllers.{controllerName}Controller");
+                        if (controllerType != null) break;
+                    }
+                }
+                
+                if (controllerType == null)
+                    return HtmlString.Empty;
+
+                var controller = Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(serviceProvider, controllerType) as Microsoft.AspNetCore.Mvc.Controller;
+                
+                if (controller == null)
+                    return HtmlString.Empty;
+
+                // Set controller context
+                controller.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
+                {
+                    HttpContext = httpContext
+                };
+
+                // Invoke action method
+                var method = controllerType.GetMethod(actionName);
+                if (method == null)
+                    return HtmlString.Empty;
+
+                // Prepare parameters
+                var parameters = new List<object>();
                 if (routeValues != null)
                 {
                     var routeDict = new Microsoft.AspNetCore.Routing.RouteValueDictionary(routeValues);
-                    // Try to get a model property from route values
-                    if (routeDict.ContainsKey("model"))
-                        model = routeDict["model"];
-                    else if (routeDict.Count == 1)
-                        model = routeDict.Values.First();
+                    var methodParams = method.GetParameters();
+                    foreach (var param in methodParams)
+                    {
+                        if (routeDict.ContainsKey(param.Name))
+                            parameters.Add(routeDict[param.Name]);
+                        else if (param.HasDefaultValue)
+                            parameters.Add(param.DefaultValue);
+                        else
+                            parameters.Add(null);
+                    }
                 }
 
-                // Try to render the partial view directly
-                // The view should be at Views/{ControllerName}/{ActionName}.cshtml
-                var viewName = $"{controllerName}/{actionName}";
+                var result = method.Invoke(controller, parameters.Any() ? parameters.ToArray() : null);
                 
-                // First try the specific view name
-                var result = html.Partial(viewName, model);
-                if (result != null)
-                    return result;
-
-                // If that fails, try just the action name
-                return html.Partial(actionName, model) ?? HtmlString.Empty;
+                // Handle result
+                if (result is Microsoft.AspNetCore.Mvc.ContentResult contentResult)
+                    return new HtmlString(contentResult.Content);
+                else if (result is Microsoft.AspNetCore.Mvc.PartialViewResult partialViewResult)
+                    return html.Partial(partialViewResult.ViewName ?? actionName, partialViewResult.Model);
+                else if (result is Microsoft.AspNetCore.Mvc.ViewResult viewResult)
+                    return html.Partial(viewResult.ViewName ?? actionName, viewResult.Model);
+                
+                return HtmlString.Empty;
             }
             catch (Exception)
             {

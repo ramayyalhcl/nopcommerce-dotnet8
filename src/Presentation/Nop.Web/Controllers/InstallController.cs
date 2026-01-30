@@ -163,6 +163,7 @@ namespace Nop.Web.Controllers
                 builder.Password = password;
             }
             builder.PersistSecurityInfo = false;
+            builder.Encrypt = false; // Unsecure mode for POC/dev
             if (this.UseMars)
             {
                 builder.MultipleActiveResultSets = true;
@@ -447,6 +448,7 @@ namespace Nop.Web.Controllers
                     _logger.LogInformation("Cache reset; installing plugins");
 
                     //install plugins
+                    PluginManager.Initialize(); // Ensure ReferencedPlugins is loaded before accessing
                     PluginManager.MarkAllPluginsAsUninstalled();
                     var pluginFinder = EngineContext.Current.Resolve<IPluginFinder>();
                     var plugins = pluginFinder.GetPlugins<IPlugin>(LoadPluginsMode.All)

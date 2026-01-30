@@ -80,6 +80,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             // For now, create a default configuration (IgnoreStartupTasks defaults to false)
             Console.WriteLine("[LOG] ConfigureApplicationServices: Creating NopConfig...");
             var nopConfig = new NopConfig();
+            EngineContext.SetDefaultConfig(nopConfig);
 
             // Register all nopCommerce services via DependencyRegistrar pattern
             // We need to create the typeFinder and engine instance first, but we can't create the engine yet
