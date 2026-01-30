@@ -15,9 +15,11 @@ using Nop.Core.Infrastructure;
 using Nop.Core.Plugins;
 using Nop.Services.Installation;
 using Nop.Services.Security;
+using Nop.Data;
 using Nop.Web.Framework.Security;
 using Nop.Web.Infrastructure.Installation;
 using Nop.Web.Models.Install;
+using Microsoft.EntityFrameworkCore;
 
 namespace Nop.Web.Controllers
 {
@@ -430,6 +432,11 @@ namespace Nop.Web.Controllers
                     dataProviderInstance.InitDatabase();
                     _logger.LogInformation("Database initialized");
 
+                    // Ensure schema exists (EF Core: InitDatabase is no-op; create tables from model)
+                    var dbContext = EngineContext.Current.Resolve<NopObjectContext>();
+                    dbContext.Database.EnsureCreated();
+                    _logger.LogInformation("Database schema ensured (EnsureCreated).");
+
                     //now resolve installation service
                     var installationService = EngineContext.Current.Resolve<IInstallationService>();
                     _logger.LogInformation("Installing seed data. InstallSampleData={InstallSampleData}", model.InstallSampleData);
@@ -470,11 +477,8 @@ namespace Nop.Web.Controllers
                         EngineContext.Current.Resolve<IPermissionService>().InstallPermissions(provider);
                     }
 
-                    //restart application
-                    _logger.LogInformation("Install completed successfully; restarting application");
-                    webHelper.RestartAppDomain();
-
-                    //Redirect to home page
+                    // Redirect to home page (skip RestartAppDomain so app stays running and user reaches landing page)
+                    _logger.LogInformation("Install completed successfully; redirecting to HomePage");
                     return RedirectToRoute("HomePage");
                 }
                 catch (Exception exception)
