@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Nop.Core;
 using Nop.Core.Data;
+using Nop.Data;  // .NET 8.0: For IDbContext access
 using Nop.Core.Domain;
 using Nop.Core.Domain.Affiliates;
 using Nop.Core.Domain.Blogs;
@@ -100,6 +101,7 @@ namespace Nop.Services.Installation
         private readonly IRepository<StockQuantityHistory> _stockQuantityHistoryRepository;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IWebHelper _webHelper;
+        private readonly IDbContext _dbContext;  // .NET 8.0: Added for stored procedure execution
 
         #endregion
 
@@ -159,7 +161,8 @@ namespace Nop.Services.Installation
             IRepository<SearchTerm> searchTermRepository,
             IRepository<StockQuantityHistory> stockQuantityHistoryRepository,
             IGenericAttributeService genericAttributeService,
-            IWebHelper webHelper)
+            IWebHelper webHelper,
+            IDbContext dbContext)  // .NET 8.0: Added for stored procedure execution
         {
             this._storeRepository = storeRepository;
             this._measureDimensionRepository = measureDimensionRepository;
@@ -216,6 +219,7 @@ namespace Nop.Services.Installation
             this._stockQuantityHistoryRepository = stockQuantityHistoryRepository;
             this._genericAttributeService = genericAttributeService;
             this._webHelper = webHelper;
+            this._dbContext = dbContext;  // .NET 8.0: For stored procedure execution
         }
 
         #endregion
@@ -12305,8 +12309,9 @@ namespace Nop.Services.Installation
                     if (string.IsNullOrWhiteSpace(trimmedStatement))
                         continue;
 
-                    // Execute raw SQL
-                    _dbContext.Database.ExecuteSqlRaw(trimmedStatement);
+                    // Execute raw SQL using IDbContext.ExecuteSqlCommand
+                    // .NET 8.0: Uses IDbContext injected in constructor
+                    _dbContext.ExecuteSqlCommand(trimmedStatement, doNotEnsureTransaction: true);
                 }
 
                 // Log success
