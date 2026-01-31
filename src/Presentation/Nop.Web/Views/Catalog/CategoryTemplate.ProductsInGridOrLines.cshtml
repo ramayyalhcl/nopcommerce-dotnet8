@@ -1,4 +1,4 @@
-﻿@model CategoryModel
+@model CategoryModel
 @{
     Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
 
@@ -13,7 +13,8 @@
     var canonicalUrlsEnabled = EngineContext.Current.Resolve<SeoSettings>().CanonicalUrlsEnabled;
     if (canonicalUrlsEnabled)
     {
-        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Request.Url.Scheme);
+        // .NET 8.0: Context.Request.Scheme instead of Request.Url.Scheme
+        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, Context.Request.Scheme);
         Html.AddCanonicalUrlParts(categoryUrl);
     }
 
@@ -31,7 +32,8 @@
         <div class="breadcrumb">
             <ul>
                 <li>
-                    <a href="@Url.RouteUrl("HomePage")" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+                    @* .NET 8.0: Use Localizer.GetResource() instead of T() *@
+                    <a href="@Url.RouteUrl("HomePage")" title="@Localizer.GetResource("Categories.Breadcrumb.Top")">@Localizer.GetResource("Categories.Breadcrumb.Top")</a>
                     <span class="delimiter">@breadcrumbDelimiter</span>
                 </li>
                 @foreach (var cat in Model.CategoryBreadcrumb)
@@ -99,7 +101,7 @@
         {
             <div class="product-grid featured-product-grid">
                 <div class="title">
-                    <strong>@T("Products.FeaturedProducts")</strong>
+                    <strong>@Localizer.GetResource("Products.FeaturedProducts")</strong>
                 </div>
                 <div class="item-grid">
                     @foreach (var item in Model.FeaturedProducts)
@@ -114,19 +116,22 @@
         @Html.Widget("categorydetails_after_featured_products", Model.Id)
         @if (Model.Products.Count > 0)
         {
-            @Html.Partial("_CatalogSelectors", Model.PagingFilteringContext, new ViewDataDictionary())
+            @* .NET 8.0: Pass ViewData instead of new ViewDataDictionary() *@
+            @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext, ViewData)
         }
         @Html.Widget("categorydetails_before_filters", Model.Id)
         <div class="product-filters">
             @*filtering*@
             @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
             {
-                @Html.Partial("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter, new ViewDataDictionary())
+                @* .NET 8.0: Pass ViewData instead of new ViewDataDictionary() *@
+                @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter, ViewData)
             }
             @*filtering*@
             @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
             {
-                @Html.Partial("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter, new ViewDataDictionary())
+                @* .NET 8.0: Pass ViewData instead of new ViewDataDictionary() *@
+                @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter, ViewData)
             }
         </div>
         @Html.Widget("categorydetails_before_product_list", Model.Id)
@@ -144,7 +149,8 @@
                 </div>
             </div>
         }
-        @{
+        @* .NET 8.0 TODO: Pager helper needs migration *@
+        @* @{
             var pager = Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber");
         }
         @if (!pager.IsEmpty())
@@ -152,7 +158,7 @@
             <div class="pager">
                 @pager
             </div>
-        }
+        } *@
         @Html.Widget("categorydetails_bottom", Model.Id)
     </div>
 </div>

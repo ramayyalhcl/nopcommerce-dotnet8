@@ -19,3 +19,5 @@
 @using Nop.Web.Extensions
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Nop.Web.Framework
+@* .NET 8.0: Inject localization service for views *@
+@inject ILocalizationService Localizer
