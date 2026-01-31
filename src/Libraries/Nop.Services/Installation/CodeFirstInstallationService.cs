@@ -5851,8 +5851,10 @@ namespace Nop.Services.Installation
             settingService.SaveSetting(new CommonSettings
             {
                 UseSystemEmailForContactUsForm = true,
-                UseStoredProceduresIfSupported = false, // EF Core install does not run SqlServer.StoredProcedures.sql; LanguagePackImport etc. are not created
-                UseStoredProcedureForLoadingCategories = false,
+                // .NET 8.0: ENABLED - SqlServer.StoredProcedures.sql is now executed during installation
+                // This enables fast ProductLoadAllPaged, CategoryLoadAllPaged stored procedures
+                UseStoredProceduresIfSupported = true,
+                UseStoredProcedureForLoadingCategories = true,
                 SitemapEnabled = true,
                 SitemapIncludeCategories = true,
                 SitemapIncludeManufacturers = true,
@@ -12265,6 +12267,55 @@ namespace Nop.Services.Installation
                 InstallOrders();
                 InstallActivityLog(defaultUserEmail);
                 InstallSearchTerms();
+            }
+
+            // .NET 8.0: Execute stored procedures SQL file
+            // Migrated from: SqlFileInstallationService approach
+            // This creates ProductLoadAllPaged, CategoryLoadAllPaged, etc.
+            InstallStoredProcedures();
+        }
+
+        /// <summary>
+        /// .NET 8.0: Install stored procedures from SQL file
+        /// Migrated approach from: SqlFileInstallationService.ExecuteSqlFile()
+        /// Creates: ProductLoadAllPaged, CategoryLoadAllPaged, LanguagePackImport, etc.
+        /// </summary>
+        protected virtual void InstallStoredProcedures()
+        {
+            try
+            {
+                var filePath = CommonHelper.MapPath("~/App_Data/Install/SqlServer.StoredProcedures.sql");
+                
+                if (!System.IO.File.Exists(filePath))
+                {
+                    throw new Exception($"Stored procedures SQL file not found: {filePath}");
+                }
+
+                var fileContent = System.IO.File.ReadAllText(filePath);
+                
+                // Split by GO statement (SQL Server batch separator)
+                var sqlStatements = System.Text.RegularExpressions.Regex.Split(fileContent, @"^\s*GO\s*$", 
+                    System.Text.RegularExpressions.RegexOptions.Multiline | 
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                // Execute each statement
+                foreach (var statement in sqlStatements)
+                {
+                    var trimmedStatement = statement.Trim();
+                    if (string.IsNullOrWhiteSpace(trimmedStatement))
+                        continue;
+
+                    // Execute raw SQL
+                    _dbContext.Database.ExecuteSqlRaw(trimmedStatement);
+                }
+
+                // Log success
+                Console.WriteLine($"[LOG] InstallStoredProcedures: Successfully executed {sqlStatements.Length} SQL batches");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERR] InstallStoredProcedures failed: {ex.Message}");
+                throw;
             }
         }
 
