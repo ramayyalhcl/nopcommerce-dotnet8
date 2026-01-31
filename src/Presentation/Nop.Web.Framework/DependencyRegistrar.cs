@@ -16,6 +16,7 @@ using Nop.Core.Data;
 // using Nop.Core.Fakes; - Removed for .NET 8
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
+using Nop.Core.Security;
 using Nop.Core.Plugins;
 using Nop.Data;
 using Nop.Services.Affiliates;
@@ -309,6 +310,9 @@ namespace Nop.Web.Framework
             builder.RegisterType<TaxService>().As<ITaxService>().InstancePerLifetimeScope();
 
             builder.RegisterType<DefaultLogger>().As<ILogger>().InstancePerLifetimeScope();
+
+            // .NET 8.0: Register CookieSettings for product pages
+            builder.RegisterType<CookieSettings>().AsSelf().InstancePerLifetimeScope();
 
             //use static cache (between HTTP requests)
             builder.RegisterType<CustomerActivityService>().As<ICustomerActivityService>()
