@@ -28,9 +28,17 @@ namespace Nop.Web.Infrastructure
             // .NET 8.0: Register SEO-friendly slug route (dynamic transformer)
             // Migrated from: GenericPathRoute.cs (3.90 .NET 4.5.1)
             // This handles URLs like /electronics, /build-your-own-computer
-            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering slug route (pattern: '{**SeName}')");
-            endpointRouteBuilder.MapDynamicControllerRoute<Nop.Web.Framework.Mvc.Routing.SlugRouteTransformer>(
-                "{**SeName}");
+            // ONLY register if database is installed (avoids DI resolution errors during installation)
+            if (Nop.Core.Data.DataSettingsHelper.DatabaseIsInstalled())
+            {
+                System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering slug route (pattern: '{**SeName}')");
+                endpointRouteBuilder.MapDynamicControllerRoute<Nop.Web.Framework.Mvc.Routing.SlugRouteTransformer>(
+                    "{**SeName}");
+            }
+            else
+            {
+                System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Skipping slug route (database not installed)");
+            }
 
             // Register standard MVC route pattern
             System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering default route (pattern: '{controller=Home}/{action=Index}/{id?}')");

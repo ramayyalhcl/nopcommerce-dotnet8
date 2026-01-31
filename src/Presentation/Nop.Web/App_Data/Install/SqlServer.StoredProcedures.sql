@@ -1,4 +1,4 @@
-﻿CREATE FUNCTION [dbo].[nop_splitstring_to_table]
+CREATE FUNCTION [dbo].[nop_splitstring_to_table]
 (
     @string NVARCHAR(MAX),
     @delimiter CHAR(1)
@@ -315,15 +315,15 @@ BEGIN
 			--product tags (exact match)
 			SET @sql = @sql + '
 			UNION
-			SELECT pptm.Product_Id
-			FROM Product_ProductTag_Mapping pptm with(NOLOCK) INNER JOIN ProductTag pt with(NOLOCK) ON pt.Id = pptm.ProductTag_Id
+			SELECT pptm.ProductsId
+			FROM Product_ProductTag_Mapping pptm with(NOLOCK) INNER JOIN ProductTag pt with(NOLOCK) ON pt.Id = pptm.ProductTagsId
 			WHERE pt.[Name] = @OriginalKeywords '
 
 			--localized product tags
 			SET @sql = @sql + '
 			UNION
-			SELECT pptm.Product_Id
-			FROM LocalizedProperty lp with (NOLOCK) INNER JOIN Product_ProductTag_Mapping pptm with(NOLOCK) ON lp.EntityId = pptm.ProductTag_Id
+			SELECT pptm.ProductsId
+			FROM LocalizedProperty lp with (NOLOCK) INNER JOIN Product_ProductTag_Mapping pptm with(NOLOCK) ON lp.EntityId = pptm.ProductTagsId
 			WHERE
 				lp.LocaleKeyGroup = N''ProductTag''
 				AND lp.LanguageId = ' + ISNULL(CAST(@LanguageId AS nvarchar(max)), '0') + '
@@ -399,7 +399,7 @@ BEGIN
 	BEGIN
 		SET @sql = @sql + '
 		LEFT JOIN Product_ProductTag_Mapping pptm with (NOLOCK)
-			ON p.Id = pptm.Product_Id'
+			ON p.Id = pptm.ProductsId'
 	END
 	
 	--searching by keywords
@@ -490,7 +490,7 @@ BEGIN
 	IF ISNULL(@ProductTagId, 0) != 0
 	BEGIN
 		SET @sql = @sql + '
-		AND pptm.ProductTag_Id = ' + CAST(@ProductTagId AS nvarchar(max))
+		AND pptm.ProductTagsId = ' + CAST(@ProductTagId AS nvarchar(max))
 	END
 	
 	--"Published" property
@@ -718,8 +718,8 @@ BEGIN
 	
 	SELECT pt.Id as [ProductTagId], COUNT(p.Id) as [ProductCount]
 	FROM ProductTag pt with (NOLOCK)
-	LEFT JOIN Product_ProductTag_Mapping pptm with (NOLOCK) ON pt.[Id] = pptm.[ProductTag_Id]
-	LEFT JOIN Product p with (NOLOCK) ON pptm.[Product_Id] = p.[Id]
+	LEFT JOIN Product_ProductTag_Mapping pptm with (NOLOCK) ON pt.[Id] = pptm.[ProductTagsId]
+	LEFT JOIN Product p with (NOLOCK) ON pptm.[ProductsId] = p.[Id]
 	WHERE
 		p.[Deleted] = 0
 		AND p.Published = 1

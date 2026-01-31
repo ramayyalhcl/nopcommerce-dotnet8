@@ -12228,6 +12228,9 @@ namespace Nop.Services.Installation
         public virtual void InstallData(string defaultUserEmail,
             string defaultUserPassword, bool installSampleData = true)
         {
+            // .NET 8.0: Install stored procedures FIRST (before InstallLocaleResources needs LanguagePackImport SP)
+            InstallStoredProcedures();
+
             InstallStores();
             InstallMeasures();
             InstallTaxCategories();
@@ -12272,11 +12275,6 @@ namespace Nop.Services.Installation
                 InstallActivityLog(defaultUserEmail);
                 InstallSearchTerms();
             }
-
-            // .NET 8.0: Execute stored procedures SQL file
-            // Migrated from: SqlFileInstallationService approach
-            // This creates ProductLoadAllPaged, CategoryLoadAllPaged, etc.
-            InstallStoredProcedures();
         }
 
         /// <summary>
