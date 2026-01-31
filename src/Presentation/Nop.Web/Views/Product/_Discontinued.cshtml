@@ -1,8 +1,8 @@
-﻿@model ProductDetailsModel
+@model ProductDetailsModel
 @using Nop.Web.Models.Catalog;
 @if (Model.DisplayDiscontinuedMessage)
 {
     <div class="discontinued-product">
-        <h4>@T("Products.Discontinued")</h4>
+        <h4>@Localizer.GetResource("Products.Discontinued")</h4>
     </div>
 }

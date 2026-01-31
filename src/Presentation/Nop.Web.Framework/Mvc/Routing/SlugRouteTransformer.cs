@@ -114,7 +114,7 @@ namespace Nop.Web.Framework.Mvc.Routing
                         urlRecord.EntityId);
                     values["controller"] = "Product";
                     values["action"] = "ProductDetails";
-                    values["productid"] = urlRecord.EntityId;  // .NET 8.0: Route values auto-convert int to object
+                    values["productId"] = urlRecord.EntityId;  // .NET 8.0: Fixed to match ProductDetails(int productId) parameter
                     values["SeName"] = urlRecord.Slug;
                     break;
 

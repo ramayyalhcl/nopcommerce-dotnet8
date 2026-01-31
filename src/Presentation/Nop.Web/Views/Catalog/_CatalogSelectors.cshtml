@@ -1,4 +1,4 @@
-﻿@model CatalogPagingFilteringModel
+@model CatalogPagingFilteringModel
 @using Nop.Web.Models.Catalog;
 
 <div class="product-selectors">
@@ -6,7 +6,7 @@
     @if (Model.AllowProductViewModeChanging)
     {
         <div class="product-viewmode">
-            <span>@T("Catalog.ViewMode")</span>
+            <span>@Localizer.GetResource("Catalog.ViewMode")</span>
             @if (Model.AvailableViewModes.Count > 1)
             {
                 var gridMode = Model.AvailableViewModes[0];
@@ -21,7 +21,7 @@
     @if (Model.AllowProductSorting)
     {
         <div class="product-sorting">
-            <span>@T("Catalog.OrderBy")</span>
+            <span>@Localizer.GetResource("Catalog.OrderBy")</span>
             @Html.DropDownList("products-orderby", Model.AvailableSortOptions, new { onchange = "setLocation(this.value);" })
         </div>
     }
@@ -29,9 +29,9 @@
     @if (Model.AllowCustomersToSelectPageSize)
     {
         <div class="product-page-size">
-            <span>@T("Catalog.PageSize")</span>
+            <span>@Localizer.GetResource("Catalog.PageSize")</span>
             @Html.DropDownList("products-pagesize", Model.PageSizeOptions, new { onchange = "setLocation(this.value);" })
-            <span>@T("Catalog.PageSize.PerPage")</span>
+            <span>@Localizer.GetResource("Catalog.PageSize.PerPage")</span>
         </div>
     }
 </div>

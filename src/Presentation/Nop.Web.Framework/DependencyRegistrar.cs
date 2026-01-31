@@ -414,6 +414,13 @@ namespace Nop.Web.Framework
             return RegistrationBuilder
                 .ForDelegate((c, p) =>
                 {
+                    // .NET 8.0: Check if database is installed before accessing store context
+                    if (!Nop.Core.Data.DataSettingsHelper.DatabaseIsInstalled())
+                    {
+                        // Return default settings instance when database not installed (during installation)
+                        return new TSettings();
+                    }
+                    
                     var currentStoreId = c.Resolve<IStoreContext>().CurrentStore.Id;
                     //uncomment the code below if you want load settings per store only when you have two stores installed.
                     //var currentStoreId = c.Resolve<IStoreService>().GetAllStores().Count > 1

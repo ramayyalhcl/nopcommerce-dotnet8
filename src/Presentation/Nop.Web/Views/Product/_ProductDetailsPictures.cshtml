@@ -1,4 +1,4 @@
-﻿@model ProductDetailsModel
+@model ProductDetailsModel
 @using Nop.Web.Models.Catalog;
 @{
     Html.AddScriptParts("~/Scripts/jquery.magnific-popup.min.js");
@@ -19,12 +19,12 @@
                         removalDelay: 300,
                         gallery: {
                             enabled: true,
-                            tPrev: '@T("Media.MagnificPopup.Previous")',
-                            tNext: '@T("Media.MagnificPopup.Next")',
-                            tCounter: '@T("Media.MagnificPopup.Counter")'
+                            tPrev: '@Localizer.GetResource("Media.MagnificPopup.Previous")',
+                            tNext: '@Localizer.GetResource("Media.MagnificPopup.Next")',
+                            tCounter: '@Localizer.GetResource("Media.MagnificPopup.Counter")'
                         },
-                        tClose: '@T("Media.MagnificPopup.Close")',
-                        tLoading: '@T("Media.MagnificPopup.Loading")'
+                        tClose: '@Localizer.GetResource("Media.MagnificPopup.Close")',
+                        tLoading: '@Localizer.GetResource("Media.MagnificPopup.Loading")'
                     });
                 });
             </script>
