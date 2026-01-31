@@ -25,13 +25,21 @@ namespace Nop.Web.Infrastructure
                 pattern: "Install/{action=Index}/{id?}",
                 defaults: new { controller = "Install", action = "Index" });
 
-            // .NET 8.0: Register SEO-friendly slug route (dynamic transformer)
+            // Register standard MVC route pattern BEFORE slug route
+            // This ensures conventional routes like /category/5 work
+            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering default route (pattern: '{controller=Home}/{action=Index}/{id?}')");
+            endpointRouteBuilder.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            // .NET 8.0: Register SEO-friendly slug route LAST (dynamic transformer)
             // Migrated from: GenericPathRoute.cs (3.90 .NET 4.5.1)
             // This handles URLs like /electronics, /build-your-own-computer
+            // MUST be registered LAST so conventional routes are matched first
             // ONLY register if database is installed (avoids DI resolution errors during installation)
             if (Nop.Core.Data.DataSettingsHelper.DatabaseIsInstalled())
             {
-                System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering slug route (pattern: '{**SeName}')");
+                System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering slug route (pattern: '{**SeName}') - LAST");
                 endpointRouteBuilder.MapDynamicControllerRoute<Nop.Web.Framework.Mvc.Routing.SlugRouteTransformer>(
                     "{**SeName}");
             }
@@ -39,12 +47,6 @@ namespace Nop.Web.Infrastructure
             {
                 System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Skipping slug route (database not installed)");
             }
-
-            // Register standard MVC route pattern
-            System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Registering default route (pattern: '{controller=Home}/{action=Index}/{id?}')");
-            endpointRouteBuilder.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
             
             System.Console.WriteLine("[LOG] RouteProvider.RegisterRoutes: Route registration complete.");
         }
