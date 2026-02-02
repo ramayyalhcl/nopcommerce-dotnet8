@@ -16,6 +16,7 @@ using Nop.Core.Data;
 // using Nop.Core.Fakes; - Removed for .NET 8
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
+using Nop.Core.Security;
 using Nop.Core.Plugins;
 using Nop.Data;
 using Nop.Services.Affiliates;
@@ -310,6 +311,9 @@ namespace Nop.Web.Framework
 
             builder.RegisterType<DefaultLogger>().As<ILogger>().InstancePerLifetimeScope();
 
+            // .NET 8.0: Register CookieSettings for product pages
+            builder.RegisterType<CookieSettings>().AsSelf().InstancePerLifetimeScope();
+
             //use static cache (between HTTP requests)
             builder.RegisterType<CustomerActivityService>().As<ICustomerActivityService>()
                 .WithParameter(ResolvedParameter.ForNamed<ICacheManager>("nop_cache_static"))
@@ -355,6 +359,10 @@ namespace Nop.Web.Framework
            
                 
             builder.RegisterType<RoutePublisher>().As<IRoutePublisher>().SingleInstance();
+            
+            // .NET 8.0: Register SlugRouteTransformer for SEO-friendly URLs
+            // Migrated from: GenericPathRoute (3.90) - now uses DynamicRouteValueTransformer pattern
+            builder.RegisterType<Mvc.Routing.SlugRouteTransformer>().InstancePerLifetimeScope();
 
             //Register event consumers
             var consumers = typeFinder.FindClassesOfType(typeof(IConsumer<>)).ToList();
@@ -406,6 +414,13 @@ namespace Nop.Web.Framework
             return RegistrationBuilder
                 .ForDelegate((c, p) =>
                 {
+                    // .NET 8.0: Check if database is installed before accessing store context
+                    if (!Nop.Core.Data.DataSettingsHelper.DatabaseIsInstalled())
+                    {
+                        // Return default settings instance when database not installed (during installation)
+                        return new TSettings();
+                    }
+                    
                     var currentStoreId = c.Resolve<IStoreContext>().CurrentStore.Id;
                     //uncomment the code below if you want load settings per store only when you have two stores installed.
                     //var currentStoreId = c.Resolve<IStoreService>().GetAllStores().Count > 1

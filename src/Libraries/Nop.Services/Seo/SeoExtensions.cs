@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -241,7 +241,9 @@ namespace Nop.Services.Seo
                 var urlRecord = urlRecordService.GetBySlug(tempSeName);
                 var reserved1 = urlRecord != null && !(urlRecord.EntityId == entityId && urlRecord.EntityName.Equals(entityName, StringComparison.InvariantCultureIgnoreCase));
                 //and it's not in the list of reserved slugs
-                var reserved2 = seoSettings.ReservedUrlRecordSlugs.Contains(tempSeName, StringComparer.InvariantCultureIgnoreCase);
+                // .NET 8.0: Handle null ReservedUrlRecordSlugs during installation
+                var reserved2 = seoSettings.ReservedUrlRecordSlugs != null && 
+                               seoSettings.ReservedUrlRecordSlugs.Contains(tempSeName, StringComparer.InvariantCultureIgnoreCase);
                 if (!reserved1 && !reserved2)
                     break;
 

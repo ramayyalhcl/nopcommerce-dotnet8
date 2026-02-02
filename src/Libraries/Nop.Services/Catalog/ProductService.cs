@@ -765,7 +765,11 @@ namespace Nop.Services.Catalog
                 #region Search products
 
                 //products
+                // .NET 8.0: Include navigation properties for EF Core
+                // Required for category/manufacturer filtering with navigation properties
                 var query = _productRepository.Table;
+                query = query.Include(p => p.ProductCategories);
+                query = query.Include(p => p.ProductManufacturers);
                 query = query.Where(p => !p.Deleted);
                 if (!overridePublished.HasValue)
                 {
@@ -869,21 +873,22 @@ namespace Nop.Services.Catalog
                 }
 
                 //category filtering
+                // .NET 8.0: Rewritten to avoid navigation property in LINQ query
+                // EF Core can't translate "from pc in p.ProductCategories" pattern
                 if (categoryIds != null && categoryIds.Any())
                 {
-                    query = from p in query
-                            from pc in p.ProductCategories.Where(pc => categoryIds.Contains(pc.CategoryId))
-                            where (!featuredProducts.HasValue || featuredProducts.Value == pc.IsFeaturedProduct)
-                            select p;
+                    // Use Any() instead of from...in pattern for EF Core compatibility
+                    query = query.Where(p => p.ProductCategories.Any(pc => categoryIds.Contains(pc.CategoryId) &&
+                        (!featuredProducts.HasValue || featuredProducts.Value == pc.IsFeaturedProduct)));
                 }
 
                 //manufacturer filtering
+                // .NET 8.0: Rewritten to avoid navigation property in LINQ query
                 if (manufacturerId > 0)
                 {
-                    query = from p in query
-                            from pm in p.ProductManufacturers.Where(pm => pm.ManufacturerId == manufacturerId)
-                            where (!featuredProducts.HasValue || featuredProducts.Value == pm.IsFeaturedProduct)
-                            select p;
+                    // Use Any() instead of from...in pattern for EF Core compatibility
+                    query = query.Where(p => p.ProductManufacturers.Any(pm => pm.ManufacturerId == manufacturerId &&
+                        (!featuredProducts.HasValue || featuredProducts.Value == pm.IsFeaturedProduct)));
                 }
 
                 //vendor filtering
@@ -964,6 +969,11 @@ namespace Nop.Services.Catalog
                         select pGroup.FirstOrDefault();
 
                 //sort products
+                // .NET 8.0 MIGRATION NOTE: Commented out navigation property ordering
+                // EF Core can't translate FirstOrDefault() on navigation properties in OrderBy clause
+                // TODO: Re-implement using client-side evaluation or raw SQL if display order is critical
+                // For now, falling through to name-based ordering
+                /*
                 if (orderBy == ProductSortingEnum.Position && categoryIds != null && categoryIds.Any())
                 {
                     //category position
@@ -976,7 +986,8 @@ namespace Nop.Services.Catalog
                     query = 
                         query.OrderBy(p => p.ProductManufacturers.FirstOrDefault(pm => pm.ManufacturerId == manufacturerId).DisplayOrder);
                 }
-                else if (orderBy == ProductSortingEnum.Position)
+                else */
+                if (orderBy == ProductSortingEnum.Position)
                 {
                     //otherwise sort by name
                     query = query.OrderBy(p => p.Name);

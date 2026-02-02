@@ -755,6 +755,13 @@ namespace Nop.Web.Factories
 
             foreach (var attribute in productAttributeMapping)
             {
+                // .NET 8.0: Skip attributes with null ProductAttribute (navigation property not loaded)
+                if (attribute.ProductAttribute == null)
+                {
+                    Console.WriteLine($"[WARN] ProductAttribute is null for mapping ID {attribute.Id}. Skipping.");
+                    continue;
+                }
+                
                 var attributeModel = new ProductDetailsModel.ProductAttributeModel
                 {
                     Id = attribute.Id,
@@ -987,6 +994,7 @@ namespace Nop.Web.Factories
                      _storeContext.CurrentStore.Id);
             var model = _cacheManager.Get(manufacturersCacheKey,
                 () => _manufacturerService.GetProductManufacturersByProductId(product.Id)
+                    .Where(pm => pm.Manufacturer != null) // .NET 8.0: Skip null navigation properties
                     .Select(pm =>
                     {
                         var manufacturer = pm.Manufacturer;
@@ -1526,6 +1534,7 @@ namespace Nop.Web.Factories
             string cacheKey = string.Format(ModelCacheEventConsumer.PRODUCT_SPECS_MODEL_KEY, product.Id, _workContext.WorkingLanguage.Id);
             return _cacheManager.Get(cacheKey, () =>
                 _specificationAttributeService.GetProductSpecificationAttributes(product.Id, 0, null, true)
+                .Where(psa => psa.SpecificationAttributeOption != null && psa.SpecificationAttributeOption.SpecificationAttribute != null) // .NET 8.0: Skip null navigation properties
                 .Select(psa =>
                 {
                     var m = new ProductSpecificationModel

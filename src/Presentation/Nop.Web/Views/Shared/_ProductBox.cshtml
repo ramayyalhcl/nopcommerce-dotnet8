@@ -1,4 +1,4 @@
-﻿@model ProductOverviewModel
+@model ProductOverviewModel
 @using Nop.Core
 @using Nop.Core.Domain.Catalog
 @using Nop.Core.Domain.Orders
@@ -45,7 +45,7 @@
             {
                 ratingPercent = ((Model.ReviewOverviewModel.RatingSum*100)/Model.ReviewOverviewModel.TotalReviews)/5;
             }
-            <div class="product-rating-box" title="@string.Format(T("Reviews.TotalReviews").Text, Model.ReviewOverviewModel.TotalReviews)">
+            <div class="product-rating-box" title="@string.Format(Localizer.GetResource("Reviews.TotalReviews"), Model.ReviewOverviewModel.TotalReviews)">
                 <div class="rating">
                     <div style="width: @(ratingPercent)%">
                     </div>
@@ -69,7 +69,7 @@
                     //tax info is already included in the price (incl/excl tax). that's why we display only shipping info here
                     //of course, you can modify appropriate locales to include VAT info there
                     <span class="tax-shipping-info">
-                        @T(inclTax ? "Products.Price.TaxShipping.InclTax" : "Products.Price.TaxShipping.ExclTax", Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("shippinginfo") }))
+                        @string.Format(Localizer.GetResource(inclTax ? "Products.Price.TaxShipping.InclTax" : "Products.Price.TaxShipping.ExclTax"), Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("shippinginfo") }))
                     </span>
                 }
                 @if (!String.IsNullOrEmpty(Model.ProductPrice.BasePricePAngV))
@@ -84,25 +84,25 @@
                 @*<input type="button" value="@T("Products.Details")" class="button-1 product-box-detail-button" onclick="setLocation('@Url.RouteUrl("Product", new { SeName = Model.SeName })')" />*@
                 @if (!Model.ProductPrice.DisableBuyButton)
                 {
-                    var addToCartText = T("ShoppingCart.AddToCart").Text;
+                    var addToCartText = Localizer.GetResource("ShoppingCart.AddToCart");
                     if (Model.ProductPrice.IsRental)
                     {
-                        addToCartText = T("ShoppingCart.Rent").Text;
-                    }
-                    if (Model.ProductPrice.AvailableForPreOrder)
-                    {
-                        addToCartText = T("ShoppingCart.PreOrder").Text;
-                    }
-                    <input type="button" value="@(addToCartText)" class="button-2 product-box-add-to-cart-button" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;" />
+                    addToCartText = Localizer.GetResource("ShoppingCart.Rent");
                 }
-                @if (!Model.ProductPrice.DisableAddToCompareListButton)
+                if (Model.ProductPrice.AvailableForPreOrder)
                 {
-                    <input type="button" value="@T("ShoppingCart.AddToCompareList")" title="@T("ShoppingCart.AddToCompareList")" class="button-2 add-to-compare-list-button" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;" />
+                    addToCartText = Localizer.GetResource("ShoppingCart.PreOrder");
                 }
-                @if (!Model.ProductPrice.DisableWishlistButton)
-                {
-                    <input type="button" value="@T("ShoppingCart.AddToWishlist")" title="@T("ShoppingCart.AddToWishlist")" class="button-2 add-to-wishlist-button" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;" />
-                }
+                <input type="button" value="@(addToCartText)" class="button-2 product-box-add-to-cart-button" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;" />
+            }
+            @if (!Model.ProductPrice.DisableAddToCompareListButton)
+            {
+                <input type="button" value="@Localizer.GetResource("ShoppingCart.AddToCompareList")" title="@Localizer.GetResource("ShoppingCart.AddToCompareList")" class="button-2 add-to-compare-list-button" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;" />
+            }
+            @if (!Model.ProductPrice.DisableWishlistButton)
+            {
+                <input type="button" value="@Localizer.GetResource("ShoppingCart.AddToWishlist")" title="@Localizer.GetResource("ShoppingCart.AddToWishlist")" class="button-2 add-to-wishlist-button" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;" />
+            }
             </div>
             @Html.Widget("productbox_addinfo_after", Model.Id)
         </div>

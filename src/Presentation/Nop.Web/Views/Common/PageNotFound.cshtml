@@ -1,14 +1,14 @@
-﻿@{
+@{
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
 
-    //title
-    Html.AddTitleParts(T("PageTitle.PageNotFound").Text);
+    // .NET 8.0: Use Localizer.GetResource() instead of T()
+    Html.AddTitleParts(Localizer.GetResource("PageTitle.PageNotFound"));
     //page class
     Html.AppendPageCssClassParts("html-not-found-page");
 }
 <div class="page not-found-page">
     <div class="page-title">
-        <h1>@T("PageTitle.PageNotFound")</h1>
+        <h1>@Localizer.GetResource("PageTitle.PageNotFound")</h1>
     </div>
     <div class="page-body">
         @Html.Action("TopicBlock", "Topic", new { systemName = "PageNotFound" })
