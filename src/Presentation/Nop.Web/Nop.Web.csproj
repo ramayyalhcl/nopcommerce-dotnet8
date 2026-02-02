@@ -8,6 +8,9 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <RazorCompileOnBuild>false</RazorCompileOnBuild>
+    
+    <!-- Ensure all content files are copied to publish directory for IIS deployment -->
+    <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +31,28 @@
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
+
+  <!-- 
+    IIS Deployment: Ensure all required folders are copied to publish output
+    The SDK includes these as Content by default, we just ensure CopyToPublishDirectory is set
+  -->
+  <ItemGroup>
+    <!-- App_Data: Localization, Installation SQL scripts -->
+    <Content Update="App_Data\**\*" CopyToPublishDirectory="PreserveNewest" />
+    <Content Remove="App_Data\Settings.txt" />
+    
+    <!-- Views: Razor .cshtml files for runtime compilation -->
+    <Content Update="Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- Content: CSS, images, fonts -->
+    <Content Update="Content\**\*" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- Scripts: JavaScript files -->
+    <Content Update="Scripts\**\*" CopyToPublishDirectory="PreserveNewest" />
+    
+    <!-- Themes: Theme views, configs, assets -->
+    <Content Update="Themes\**\*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
