@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "SharpLens": {
+      "command": "C:\\Users\\avish\\Ram\\My-Nop-Migration-Workspace\\SharpToolsMCP\\SharpTools.StdioServer\\bin\\Debug\\net8.0\\SharpTools.StdioServer.exe",
+      "args": []
+    },
+    "Thinking": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "Filesystem": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/avish/Ram/My-Nop-Migration-Workspace"
+      ]
+    }
+  }
+}

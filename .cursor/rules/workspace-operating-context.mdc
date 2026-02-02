@@ -1,0 +1,313 @@
+---
+description: Single workspace rule for .NET 4.5.1 → 8.0 migration. Incremental progress, checkpoints, migration protocol. Approval rules relaxed when user grants autonomous mode.
+globs: **/*
+alwaysApply: true
+---
+
+# Workspace Operating Context
+
+**You must follow all sections below with equal importance.** No section overrides another.
+
+---
+
+## Workspace Organization
+
+This workspace contains a **NopCommerce .NET 4.5.1 → .NET 8.0 migration project** with three key directories:
+
+```
+My-Nop-Migration-Workspace/
+├── nopCommerce-release-3.90/Nop-Legacy-451/     # SOURCE: .NET Framework 4.5.1 (LEGACY)
+│   └── Original NopCommerce 3.90 codebase
+├── nopCommerce-release-4.70.0/Nop-Upgraded-80/  # REFERENCE: .NET 8.0 patterns
+│   └── NopCommerce 4.70 for .NET 8.0 reference patterns
+└── nop-working-code/                            # TARGET: Our working .NET 8.0 migration
+    └── Migrated code being upgraded to .NET 8.0
+```
+
+**Migration Reference Documentation:**
+- Microsoft .NET 8.0 Breaking Changes: https://learn.microsoft.com/en-us/dotnet/core/compatibility/8.0
+- ASP.NET Core Migration: https://learn.microsoft.com/en-us/aspnet/core/migration/
+- Entity Framework Core: https://learn.microsoft.com/en-us/ef/core/
+
+**Key Differences (.NET Framework 4.5.1 → .NET 8.0):**
+- **Web Framework**: ASP.NET MVC → ASP.NET Core MVC
+- **DI**: Autofac only → Autofac + Microsoft.Extensions.DependencyInjection
+- **Razor**: `@Html.Action()` → `@await Component.InvokeAsync()` (ViewComponents)
+- **Routing**: RouteConfig.cs → Endpoint Routing
+- **Configuration**: Web.config → appsettings.json + DI
+- **EF**: Entity Framework 6.x → Entity Framework Core
+- **Namespace**: `System.Web.*` → `Microsoft.AspNetCore.*`
+
+---
+
+## 1. MIGRATION PRINCIPLE: Minimal Changes, Not Rewrites - CRITICAL
+
+**This is a MIGRATION project, NOT a rewrite project.**
+
+### **Core Principle:**
+- ❌ **DON'T**: Rewrite working legacy code with "modern" patterns
+- ✅ **DO**: Keep legacy code, fix ONLY what breaks in .NET 8.0
+- ❌ **DON'T**: Introduce new approaches when old ones can be adapted
+- ✅ **DO**: Make minimal changes to achieve .NET 8.0 compatibility
+
+### **Concrete Examples:**
+
+**❌ BAD (Aggressive Rewrite):**
+```csharp
+// Legacy: TopMenu.cshtml uses TopMenuModel with @helper syntax
+// DON'T: Remove model, hardcode HTML with static categories
+<ul class="top-menu">
+    <li><a href="/computers">Computers</a></li> <!-- Hardcoded! -->
+</ul>
+```
+
+**✅ GOOD (Conservative Migration):**
+```csharp
+// Legacy: TopMenu.cshtml uses TopMenuModel with @helper syntax
+// DO: Keep TopMenuModel, replace only the @helper (which breaks in .NET Core)
+@model TopMenuModel
+@foreach (var category in Model.Categories) {
+    <li><a href="@category.SeName">@category.Name</a></li>
+}
+```
+
+**❌ BAD: Replace @Html.Action() with hardcoded HTML**
+**✅ GOOD: Keep @Html.Action() if it works, or add compatibility shim**
+
+**❌ BAD: Remove FooterModel, hardcode all footer links**
+**✅ GOOD: Keep FooterModel, ensure controller populates it correctly**
+
+### **Decision Tree for Every Change:**
+1. **Does the legacy code compile in .NET 8.0?** → If YES, keep it as-is
+2. **Does it fail at runtime?** → If NO, keep it as-is
+3. **What's the SMALLEST change to make it work?** → Do only that
+4. **Can we add a compatibility layer instead of rewriting?** → Prefer that
+
+### **This Applies to ALL Work:**
+- Views (Razor)
+- Controllers
+- Services
+- Models
+- Configuration
+- Database code
+- UI/UX
+- Everything!
+
+**Stakeholders do not accept aggressive changes or new ways of doing things for this project.**
+
+---
+
+## 2. No Code Changes Without Approval (Relaxed in Autonomous Mode)
+
+- **Do NOT** edit, create, or delete any file until the user has **explicitly approved** (e.g. "yes", "apply", "proceed").
+- **Workflow:** Propose what you will change (files, approach) → Ask *"Shall I apply this?"* → **Wait for yes** → Then apply.
+- Applies to all code (C#, Razor, config, SQL, migration, install/seed, EF, refactors).
+- **Exception 1:** When the user explicitly asks to apply in the same message (e.g. "fix this, go ahead").
+- **Exception 2 - AUTONOMOUS MODE:** When user says "you have 10-12 hours", "work overnight", "take ownership", or similar autonomous grants, approval is satisfied for that entire scope. Work incrementally within that scope without asking for each change.
+- If in doubt, ask. Do not assume approval.
+
+---
+
+## 3. Migration Diagnostic Protocol (4.5.1 → 8.0) - CRITICAL
+
+**Reference the workspace organization above and Microsoft documentation before making any changes.**
+
+- **Compare before coding:** State *"In 4.5.1, this was handled by X; in the upgraded 8.0 code, it is handled by Y."*
+- **Observe:** DI (Autofac vs MS DI / INopStartup), Razor (WebViewPage/Html.Partial vs RazorPage/Tag Helpers), Routing (RouteConfig vs Endpoint Routing).
+- **Check Reference Code:** Look at `nopCommerce-release-4.70.0` for .NET 8.0 patterns before implementing.
+- **No blind fixes:** Do not suggest a fix until you have verified how nopCommerce 8.0 implements the same pattern elsewhere in the local directory.
+- **Namespace guard:** Block any use of `System.Web` or `IHtmlString` in .NET 8.0 target files.
+- **Microsoft Docs:** Refer to https://learn.microsoft.com/en-us/dotnet/core/compatibility/8.0 for breaking changes.
+- **Verification:** Ask *"I have analyzed the DI/Razor/Routing differences. Shall I apply the fix based on the 8.0 reference pattern?"* Do **not** apply until the user says yes (unless in autonomous mode).
+
+---
+
+## 4. MCP Server Usage - CRITICAL
+
+Leverage configured MCP servers for efficient work:
+- **project-0-My-Nop-Migration-Workspace-Filesystem**: File operations
+- **project-0-My-Nop-Migration-Workspace-Thinking**: Complex decision making
+- **project-0-My-Nop-Migration-Workspace-SharpLens**: C# code analysis
+
+**When to use:**
+- Analyzing large codebases
+- Understanding complex class hierarchies
+- Making architectural decisions
+- Before implementing any complex component
+
+---
+
+## 5. Incremental Progress
+
+- **Always make progress incrementally.** Do not change a whole lot of code and then try to make it work.
+- Prefer small, focused changes: one fix or one concern at a time. Verify (build, run, or test) before adding the next.
+- If a change is large, break it into smaller steps and get each step working before proceeding.
+
+### **Task Breakdown Examples:**
+
+**❌ BAD - Too large:**
+- "Implement entire header component"
+- "Fix all product display issues"
+- "Update all views for .NET 8.0"
+
+**✅ GOOD - Small & testable:**
+- "Copy logo.png to wwwroot → Test it loads at /Themes/.../logo.png"
+- "Create LogoViewComponent class → Test it compiles"
+- "Add Logo view → Test it renders 'Logo'"
+- "Wire logo image to view → Test actual logo displays"
+- "Style logo div → Test it matches legacy position"
+
+**Cycle for each task:**
+1. Make one small change
+2. Build (`dotnet build`)
+3. Run app (check logs)
+4. Verify change works
+5. Fix if broken
+6. Only then move to next task
+
+**Example - Mature approach for "Add Homepage Products":**
+```
+Task 1: Create HomepageProductsViewComponent.cs (empty, just returns "test")
+→ Build → Run → Verify "test" appears → Commit
+
+Task 2: Add database query to fetch products
+→ Add logging → Build → Run → Check logs for product count → Commit
+
+Task 3: Create ProductOverviewModel mapping
+→ Build → Run → Verify models created → Commit
+
+Task 4: Create HomepageProducts.cshtml view (just product names)
+→ Build → Run → Verify names display → Commit
+
+Task 5: Add _ProductBox.cshtml partial (structure only)
+→ Build → Run → Verify layout → Commit
+
+Task 6: Add product images
+→ Build → Run → Verify images load → Commit
+
+Task 7: Add styling
+→ Build → Run → Compare with legacy → Commit
+```
+
+---
+
+## 6. Checkpoints Before Complex Work
+
+- Before **complex or multi-step fixes** (install/seed, EF Core, stored procedures, large refactors, UI component changes), **create a checkpoint** so the user can roll back.
+- **Preferred:** Git commit with a clear message; tell the user the commit hash and rollback command.
+- **Before applying fixes:** Ask *"I will create a checkpoint before making these changes. Proceed?"* unless the user already said go ahead.
+- Do not make large, irreversible changes without a checkpoint when the work is complex or the user has asked for the ability to roll back.
+
+### **Checkpoint Strategy Examples:**
+
+**When to checkpoint:**
+- ❌ **DON'T**: Change 5 files, test, commit
+- ✅ **DO**: Checkpoint → Change 1 file → Test → Works? → Move to next
+
+**Example workflow:**
+```bash
+# Before starting header component work
+git add .
+git commit -m "checkpoint: before implementing header component"
+# User can rollback with: git reset --hard HEAD~1
+
+# Work on logo only
+# Create LogoViewComponent.cs
+# Test it renders
+# Commit: "feat: add Logo ViewComponent"
+
+# Work on search box only  
+# Create SearchBoxViewComponent.cs
+# Test it renders
+# Commit: "feat: add SearchBox ViewComponent"
+
+# If lost/stuck: git reset --hard <last-good-commit-hash>
+```
+
+**Checkpoint frequency:**
+- Before each major component (Header, Navigation, Footer, Products)
+- After each successfully working subcomponent
+- Before any "risky" changes (EF queries, complex logic)
+- **Rule of thumb**: If you can't explain what changed in 2 sentences, you need more checkpoints
+
+---
+
+## 7. Install-Flow Ownership Cycle (when user says "take it over" / "you are owner")
+
+When the user has **given ownership** for getting the install page working end-to-end (e.g. "take it over from here", "you are owner", "run all, fix till seed and redirect work"), you must follow this **cycle autonomously** until seed data is created and the page redirects to home/landing. Do not stop to ask for approval at each step within this scope.
+
+1. **Run in background** — Start the app in the background (e.g. `dotnet watch run` or `dotnet run` on the Nop.Web project). Use the port/URL from agent-run-config (e.g. 5001).
+2. **Fix build errors** — Resolve any build errors so the project builds successfully.
+3. **Check logs** — Read the log file (e.g. `nop-working-code\src\Presentation\Nop.Web\bin\Debug\net8.0\App_Data\logs\agent-app.log`) to see runtime output and failures.
+4. **Analyze root cause** — From the logs, **pause and identify why** something failed. Do not guess or apply blind fixes.
+5. **Design the fix** — Decide **what** to change and **how** (align with section 4: migration protocol, no blind fixes). Then implement.
+6. **Implement the fix** — Apply the designed change.
+7. **Verify and repeat** — Re-run if needed, check logs again. Repeat steps 2–6 until: **seed data is created successfully** and **the install page redirects to the home/landing page**.
+
+Within this ownership scope, checkpoints (section 3) still apply at the **start** of the multi-step work; approval (section 1) is satisfied by the user’s explicit "take it over" / "you are owner" for this task.
+
+---
+
+## 8. Logging & Documentation Requirements
+
+### **Logging Strategy:**
+- Add comprehensive debug logs for every component
+- Log initialization, data fetching, rendering
+- Use existing Serilog setup (logs to `agent-app.log`)
+- **Always log before/after critical operations**
+
+**Example:**
+```csharp
+// .NET 8.0: Converted from [ChildActionOnly] action to ViewComponent
+// Legacy: Html.Action("Logo", "Common")
+// Modern: @await Component.InvokeAsync("Logo")
+_logger.LogDebug("LogoViewComponent: Starting initialization");
+_logger.LogDebug("LogoViewComponent: Store ID = {StoreId}", _storeContext.CurrentStore.Id);
+
+try {
+    // ... component logic ...
+    _logger.LogInformation("LogoViewComponent: Successfully rendered logo for store {StoreName}", storeName);
+} catch (Exception ex) {
+    _logger.LogError(ex, "LogoViewComponent: Failed to render logo");
+    throw;
+}
+```
+
+### **Code Comments for .NET 8.0 Migrations:**
+- Document WHY we changed from .NET 4.5.1 approach
+- Mark legacy vs. modern patterns
+- Explain ViewComponent conversions
+
+**Example:**
+```csharp
+// MIGRATION NOTE (.NET 4.5.1 → 8.0):
+// Legacy used [ChildActionOnly] public ActionResult Logo()
+// .NET 8.0: Use ViewComponent pattern instead
+// Reason: Html.Action() not supported in ASP.NET Core
+// Reference: nopCommerce 4.70.0 CommonViewComponent pattern
+
+public class LogoViewComponent : NopViewComponent
+{
+    // Constructor with DI (same as legacy, but cleaner)
+    // Legacy used EngineContext.Current.Resolve<T>()
+    // Modern uses constructor injection
+    public LogoViewComponent(IStoreContext storeContext, ...)
+    {
+        // ...
+    }
+}
+```
+
+---
+
+**Summary:**
+1. **CRITICAL**: This is MIGRATION, not rewrite—minimal changes, keep legacy code working
+2. No changes without approval (relaxed in autonomous mode)
+3. **CRITICAL**: Migration protocol—compare 4.5.1 vs 8.0, check reference code, use Microsoft docs
+4. **CRITICAL**: Use MCP servers for complex analysis
+5. Incremental progress—small steps, verify as you go
+6. Checkpoints before complex work, with clear rollback paths
+7. When user gives ownership, run the cycle autonomously
+8. Comprehensive logging and .NET 8.0 migration comments
+
+All sections apply with equal importance.
