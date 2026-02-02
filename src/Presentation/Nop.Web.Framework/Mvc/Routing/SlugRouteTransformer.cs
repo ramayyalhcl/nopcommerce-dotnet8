@@ -52,6 +52,15 @@ namespace Nop.Web.Framework.Mvc.Routing
             // Log entry for debugging
             _logger.LogDebug("SlugRouteTransformer: Processing request path={Path}", httpContext.Request.Path);
 
+            // IIS Deployment Fix: Don't process slugs when database is not installed (during installation)
+            // This prevents SlugRouteTransformer from resolving IUrlRecordService and other DB-dependent services
+            // when the request is for /install or any path before the database is configured.
+            if (!Nop.Core.Data.DataSettingsHelper.DatabaseIsInstalled())
+            {
+                _logger.LogDebug("SlugRouteTransformer: Database not installed, skipping slug lookup");
+                return new ValueTask<RouteValueDictionary>(values);
+            }
+
             // Get slug from route values (pattern: {**SeName})
             if (!values.TryGetValue("SeName", out var slugValue) || slugValue == null)
             {
